@@ -1,0 +1,17 @@
+BUCKET_SERVICE:
+  SYSTEM_ABSOLUTE_PATH: "${FILE_PATH:C:/Users/akash/Downloads}"
+  BUCKET_SERVICE_ID: "${BUCKET_SERVICE_ID:random-bucket-server-id}"
+  BUCKET_SPACE_SIZE: "${BUCKET_SIZE_IN_GIGABYTES:10}"
+server:
+  port: 9502
+  servlet:
+    context-path: ${BUCKET_SERVICE.BUCKET_SERVICE_ID}
+spring:
+  application:
+    name: crom-bucket
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 10GB
+      max-file-size: 10GB
+      max-request-size: 10GB
