@@ -1,6 +1,7 @@
 package com.cromxt.crom_bucket.controller;
 
 import com.cromxt.crom_bucket.dtos.request.MediaRequestDTO;
+import com.cromxt.crom_bucket.dtos.response.MediaResponse;
 import com.cromxt.crom_bucket.service.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,9 +17,9 @@ public class FileController {
 
     @PostMapping("/upload")
     @ResponseStatus(value = HttpStatus.CREATED)
-    public Mono<ResponseEntity<Void>> uploadFile(@ModelAttribute MediaRequestDTO mediaRequestDTO) {
-        fileService.saveFile(mediaRequestDTO);
-        return null;
+    public Mono<ResponseEntity<MediaResponse>> uploadFile(@ModelAttribute MediaRequestDTO mediaRequestDTO) {
+        return fileService.saveFile(mediaRequestDTO)
+                .map(mediaResponse -> new ResponseEntity<>(mediaResponse, HttpStatus.CREATED));
     }
 
 }

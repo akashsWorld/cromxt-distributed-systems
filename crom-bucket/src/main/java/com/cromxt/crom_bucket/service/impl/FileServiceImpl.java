@@ -1,7 +1,7 @@
 package com.cromxt.crom_bucket.service.impl;
 
 import com.cromxt.crom_bucket.dtos.request.MediaRequestDTO;
-import com.cromxt.crom_bucket.dtos.response.MediaRegisterResponse;
+import com.cromxt.crom_bucket.dtos.response.MediaResponse;
 import com.cromxt.crom_bucket.service.FileService;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,12 @@ public class FileServiceImpl implements FileService {
 
 
     @Override
-    public Mono<MediaRegisterResponse> saveFile(MediaRequestDTO mediaRequestDTO) {
+    public Mono<MediaResponse> saveFile(MediaRequestDTO mediaRequestDTO) {
+        return null;
+    }
+
+    @Override
+    public Mono<MediaResponse> deleteFile(MediaRequestDTO mediaRequestDTO) {
         return null;
     }
 }
