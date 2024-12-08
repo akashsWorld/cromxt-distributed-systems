@@ -1,6 +1,6 @@
 package com.cromxt.crom_bucket.controller;
 
-import com.cromxt.crom_bucket.dtos.request.MediaRequestDTO;
+import com.cromxt.crom_bucket.dtos.request.MediaUploadRequest;
 import com.cromxt.crom_bucket.dtos.response.MediaResponse;
 import com.cromxt.crom_bucket.service.FileService;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +17,15 @@ public class FileController {
 
     @PostMapping("/upload")
     @ResponseStatus(value = HttpStatus.CREATED)
-    public Mono<ResponseEntity<MediaResponse>> uploadFile(@ModelAttribute MediaRequestDTO mediaRequestDTO) {
-        return fileService.saveFile(mediaRequestDTO)
+    public Mono<ResponseEntity<MediaResponse>> uploadFile(@ModelAttribute MediaUploadRequest mediaUploadRequest) {
+        return fileService.saveFile(mediaUploadRequest)
                 .map(mediaResponse -> new ResponseEntity<>(mediaResponse, HttpStatus.CREATED));
     }
 
+    @DeleteMapping("/delete/{fileName}")
+    @ResponseStatus(value = HttpStatus.CREATED)
+    public Mono<ResponseEntity<MediaResponse>> deleteFile(@PathVariable String fileName) {
+        return fileService.deleteFile(fileName)
+                .map(mediaResponse -> new ResponseEntity<>(mediaResponse, HttpStatus.CREATED));
+    }
 }

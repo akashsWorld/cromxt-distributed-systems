@@ -60,14 +60,6 @@ public class CromBucketApplication {
 					}
 				}
 
-				File file =  new File(systemAbsolutePath+ROOT_FOLDER+"/placeholder.dat");
-				try(FileOutputStream fileOutputStream = new FileOutputStream(file);
-					FileChannel fileChannel = fileOutputStream.getChannel();
-					FileLock lock = fileChannel.lock()
-				){
-					fileChannel.position( requiredSpaceInBytes- 1);
-					fileOutputStream.write(0);
-				}
 				log.info("Allocated {} GB of space.",requiredSpaceInGigabytes);
 
 			}catch (Exception e){
