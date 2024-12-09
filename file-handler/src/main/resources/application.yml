@@ -1,0 +1,7 @@
+spring:
+  webflux:
+    base-path: /file-server
+  application:
+    name: file-service
+server:
+  port: 9506
