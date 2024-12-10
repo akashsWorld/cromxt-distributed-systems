@@ -28,4 +28,9 @@ public class FileController {
         return fileService.deleteFile(fileName)
                 .map(mediaResponse -> new ResponseEntity<>(mediaResponse, HttpStatus.CREATED));
     }
+
+    @GetMapping("/dummy")
+    public Mono<String> dummyRequest(){
+        return Mono.just("Hello");
+    }
 }

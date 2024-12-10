@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.cromxt</groupId>
-	<artifactId>file-manager</artifactId>
+	<artifactId>bucket-server</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>file-manager</name>
-	<description>Demo project for Spring Boot</description>
+	<name>bucket-server</name>
+	<description>Bucket server create a channel to access a data from a bucket.</description>
 	<url/>
 	<licenses>
 		<license/>
