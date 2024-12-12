@@ -13,7 +13,7 @@ public class FileController {
     @PostMapping
     public Mono<ResponseEntity<Void>> uploadFile() {
         System.out.println("File uploaded!");
-        return Mono.empty();
+        return Mono.just(ResponseEntity.ok().build());
     }
 
 }
