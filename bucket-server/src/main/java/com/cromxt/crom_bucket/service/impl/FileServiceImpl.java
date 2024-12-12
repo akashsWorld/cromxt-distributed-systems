@@ -49,4 +49,10 @@ public class FileServiceImpl implements FileService {
             }
         }).subscribeOn(Schedulers.boundedElastic());
     }
+
+    @Override
+    public Mono<Long> getAvailableSpace() {
+        return Mono.fromCallable(() -> Files.getFileStore(Paths.get(SYSTEM_ABSOLUTE_PATH)).getUsableSpace())
+                .subscribeOn(Schedulers.boundedElastic());
+    }
 }

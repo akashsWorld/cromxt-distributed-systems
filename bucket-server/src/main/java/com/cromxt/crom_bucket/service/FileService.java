@@ -7,6 +7,5 @@ import reactor.core.publisher.Mono;
 public interface FileService {
     Mono<MediaResponse> saveFile(MediaUploadRequest mediaUploadRequest);
     Mono<MediaResponse> deleteFile(String fileName);
-
-
+    Mono<Long> getAvailableSpace();
 }

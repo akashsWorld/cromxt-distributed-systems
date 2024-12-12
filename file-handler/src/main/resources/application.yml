@@ -1,7 +1,13 @@
 spring:
-  webflux:
-    base-path: /file-server
   application:
     name: file-service
+  data:
+    mongodb:
+      username: root
+      password: password
+      host: 127.0.0.1
+      port: 27017
+      database: file-handler
+      authentication-database: admin
 server:
   port: 9506

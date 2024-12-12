@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping(value = "/api/v1/files")
 @RequiredArgsConstructor
@@ -29,8 +31,4 @@ public class FileController {
                 .map(mediaResponse -> new ResponseEntity<>(mediaResponse, HttpStatus.CREATED));
     }
 
-    @GetMapping("/dummy")
-    public Mono<String> dummyRequest(){
-        return Mono.just("Hello");
-    }
 }
