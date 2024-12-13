@@ -1,19 +1,25 @@
 package com.cromxt.bucket.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping(value = "/api/v1/files")
+@RequestMapping(value = "/api/v1/medias")
 public class FileController {
 
-    @PostMapping
-    public Mono<ResponseEntity<Void>> uploadFile() {
+    @PostMapping(value = "/upload")
+    public Mono<ResponseEntity<String>> uploadFile(@RequestPart(value = "file") FilePart file) {
         System.out.println("File uploaded!");
-        return Mono.just(ResponseEntity.ok().build());
+        System.out.println(file.filename());
+        return Mono.just(new ResponseEntity<>(file.filename(), HttpStatus.CREATED));
+    }
+    @GetMapping(value = "/file/{fileName}")
+    public Mono<ResponseEntity<String>> getFile(@PathVariable String fileName) {
+        System.out.println("Found file: " + fileName);
+        return Mono.just(new ResponseEntity<>(fileName, HttpStatus.OK));
     }
 
 }

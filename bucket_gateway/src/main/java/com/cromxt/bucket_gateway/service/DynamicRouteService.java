@@ -15,7 +15,9 @@ public class DynamicRouteService implements RouteDefinitionLocator {
     public DynamicRouteService(BucketServerClient bucketServerClient) {
 //        TODO: Get all routes from another service.
         this.routeDefinitions = new CopyOnWriteArrayList<>();
-
+        bucketServerClient.getAllAvailableRoutes().subscribe(
+                this.routeDefinitions::add
+        );
     }
 
     public void addRoute(RouteDefinition routeDefinition) {

@@ -1,0 +1,16 @@
+FILE_STORE:
+  SERVER_PORT: ${SERVER_PORT:8550}
+  MONGO_URL: ${MONGO_URL:mongodb://root:password@localhost:27017/file-store?authSource=admin}
+spring:
+  application:
+    name: file-store
+  data:
+    mongodb:
+      username: root
+      password: password
+      authentication-database: admin
+      host: localhost
+      port: 27017
+server:
+  port: ${FILE_STORE.SERVER_PORT}
+
