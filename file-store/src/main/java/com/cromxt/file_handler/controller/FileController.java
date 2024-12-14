@@ -16,7 +16,7 @@ public class FileController {
     @PostMapping(value = "/upload")
     public Mono<ResponseEntity<Void>> uploadFile(@ModelAttribute FileUploadRequest fileUploadRequest) {
         bucketServerClient
-                .uploadFile(fileUploadRequest.mediaObject(),String.valueOf(1))
+                .uploadFile(fileUploadRequest.mediaObject(),String.valueOf(2))
                 .subscribe(System.out::println);
         return Mono.just(ResponseEntity.ok().build());
     }

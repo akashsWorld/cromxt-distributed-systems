@@ -1,3 +1,5 @@
+BUCKET_GATEWAY:
+  BUCKETS_PROTOCOL: "${BUCKETS_IS_SECURE: false}"
 spring:
   application:
     name: bucket-gateway

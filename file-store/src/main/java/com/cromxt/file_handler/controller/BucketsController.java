@@ -15,8 +15,8 @@ public class BucketsController {
     @GetMapping
     public Flux<BucketsResponse> getBuckets() {
         return Flux.fromIterable(List.of(
-                new BucketsResponse("1", "localhost", "8090"),
-                new BucketsResponse("2", "localhost", "8090")
+                new BucketsResponse("1", "localhost", 8090),
+                new BucketsResponse("2", "localhost", 8091)
         ));
     }
 }

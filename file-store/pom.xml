@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.cromxt</groupId>
-	<artifactId>file-handler</artifactId>
+	<artifactId>file-store</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>file-handler</name>
+	<name>file-store</name>
 	<description>Handle all file related requests.</description>
 	<url/>
 	<licenses>

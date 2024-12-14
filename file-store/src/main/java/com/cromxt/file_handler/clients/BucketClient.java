@@ -1,5 +1,6 @@
 package com.cromxt.file_handler.clients;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.MediaType;
@@ -12,13 +13,12 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
+@RequiredArgsConstructor
 public class BucketClient {
 
     private final WebClient webClient;
 
-    public BucketClient(WebClient.Builder webClient) {
-        this.webClient = webClient.baseUrl("http://localhost:9090").build();
-    }
+
 
     public Mono<String> uploadFile(FilePart filePart, String bucketId) {
         String url = String.format("%s/api/v1/medias/upload", bucketId);
