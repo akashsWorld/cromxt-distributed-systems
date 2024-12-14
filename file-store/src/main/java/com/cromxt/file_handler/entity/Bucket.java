@@ -11,9 +11,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 @Getter
 @Setter
-public class Buckets {
+public class Bucket {
     @Id
     private String id;
     private String hostname;
-    private String port;
+    private Integer port;
 }

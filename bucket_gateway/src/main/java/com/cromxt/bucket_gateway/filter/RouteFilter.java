@@ -10,6 +10,9 @@ import reactor.core.publisher.Mono;
 
 
 public class RouteFilter implements GlobalFilter, Ordered {
+
+//    This filter is currently not needed.
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();

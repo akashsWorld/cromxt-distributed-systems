@@ -13,10 +13,13 @@ import reactor.core.publisher.Mono;
 public class FileController {
     private final BucketClient bucketServerClient;
 
-    @PostMapping(value = "/upload")
-    public Mono<ResponseEntity<Void>> uploadFile(@ModelAttribute FileUploadRequest fileUploadRequest) {
+    @PostMapping(value = "/upload/{bucketId}")
+    public Mono<ResponseEntity<Void>> uploadFile(
+            @ModelAttribute FileUploadRequest fileUploadRequest,
+            @PathVariable String bucketId
+    ) {
         bucketServerClient
-                .uploadFile(fileUploadRequest.mediaObject(),String.valueOf(2))
+                .uploadFile(fileUploadRequest.mediaObject(),String.valueOf(bucketId))
                 .subscribe(System.out::println);
         return Mono.just(ResponseEntity.ok().build());
     }

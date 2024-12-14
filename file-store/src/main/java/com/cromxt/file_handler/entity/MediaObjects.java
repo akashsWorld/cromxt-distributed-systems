@@ -6,8 +6,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
-import javax.management.relation.Role;
-
 @Document(collation = "media_objects")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,5 +20,5 @@ public class MediaObjects {
     private String size;
     private String path;
     @DocumentReference
-    private Buckets buckets;
+    private Bucket bucket;
 }
