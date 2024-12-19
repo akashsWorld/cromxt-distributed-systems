@@ -1,8 +1,0 @@
-BUCKET_GATEWAY:
-  BUCKETS_PROTOCOL: "${BUCKETS_IS_SECURE: false}"
-  FILE_STORE_BASE_URL: "${FILE_STORE_URL:http://localhost:8550}"
-spring:
-  application:
-    name: bucket-gateway
-server:
-  port: 9090

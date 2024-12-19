@@ -1,0 +1,8 @@
+BUCKET_GATEWAY:
+  BUCKETS_PROTOCOL: "${BUCKETS_IS_SECURE: false}"
+  ROUTER_SERVICE_BASE_URL: "${ROUTE_SERVER_URL:http://localhost:8543}"
+spring:
+  application:
+    name: bucket-gateway
+server:
+  port: 9090
