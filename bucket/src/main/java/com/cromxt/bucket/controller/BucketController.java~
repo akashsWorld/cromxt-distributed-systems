@@ -1,0 +1,4 @@
+package com.cromxt.bucket.controller;
+
+public class BucketController {
+}
