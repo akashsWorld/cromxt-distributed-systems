@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: bucket
+  kafka:
+    bootstrap-servers: loc:9092
+    producer:
+      value-serializer: org.apache.kafka.
+server:
+  port: 8090
