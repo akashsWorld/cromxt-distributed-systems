@@ -1,1 +1,3 @@
-D:\Development\projects\file-handler\common-file-modules\src\main\java\com\cromxt\file\handler\dtos\BucketsResponse.java
+D:\Development\projects\crom-bucket\common-file-modules\src\main\java\com\cromxt\buckets\BucketInformation.java
+D:\Development\projects\crom-bucket\common-file-modules\src\main\java\com\cromxt\file\handler\dtos\requests\BucketRequest.java
+D:\Development\projects\crom-bucket\common-file-modules\src\main\java\com\cromxt\file\handler\dtos\response\ErrorResponse.java

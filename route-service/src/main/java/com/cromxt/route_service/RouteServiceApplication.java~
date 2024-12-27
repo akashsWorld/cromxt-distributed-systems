@@ -13,4 +13,12 @@ public class RouteServiceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(RouteServiceApplication.class, args);
 	}
+
+	@Bean
+	public CommandLineRunner commandLineRunner(Environment environment) {
+		return args -> {
+			String groupId = environment.getProperty("KAFKA_LISTENER_GROUP_ID", String.class, UUID.randomUUID().toString());
+			System.setProperty("kafka.consumer.group-id", groupId);
+		};
+	}
 }

@@ -1,0 +1,9 @@
+{
+  "buckets": [
+    {
+      "bucketId": "1",
+      "hostName": "localhost",
+      "port": 8543
+    }
+  ]
+}
