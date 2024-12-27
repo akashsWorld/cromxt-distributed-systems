@@ -1,0 +1,6 @@
+ROUTE_SERVICE_HOST_NAME: 127.0.0.1
+spring:
+  application:
+    name: route-service
+server:
+  port: 8543

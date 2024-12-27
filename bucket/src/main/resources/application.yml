@@ -1,3 +1,5 @@
+BUCKET_HOST_NAME_AUTO_DISCOVERY: true
+BUCKET_UNIQUE_ID: 1
 spring:
   application:
     name: bucket

@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class BucketInformation {
-    private String bucketId;
     private String bucketHostName;
     private Integer port;
     private Long availableSpaceInBytes;
