@@ -8,6 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="bucket" />
+        <module name="bucket-server" />
         <module name="common-file-modules" />
         <module name="bucket-gateway" />
         <module name="route-service" />
@@ -19,6 +20,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="bucket" options="-parameters" />
       <module name="bucket-gateway" options="-parameters" />
+      <module name="bucket-server" options="-parameters" />
       <module name="file-store" options="-parameters" />
       <module name="route-service" options="-parameters" />
     </option>
