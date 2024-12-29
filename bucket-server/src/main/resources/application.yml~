@@ -4,5 +4,9 @@ spring:
   data:
     mongodb:
       uri: mongodb://root:password@localhost:27017/buckets?authSource=admin
+  mvc:
+    view:
+      prefix: /
+      suffix: .html
 server:
   port: 8888

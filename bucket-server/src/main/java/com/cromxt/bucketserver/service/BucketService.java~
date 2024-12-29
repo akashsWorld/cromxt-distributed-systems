@@ -10,12 +10,4 @@ public interface BucketService {
     List<BucketRequest> getAllBuckets();
 
     void saveBucketsFromServerJSONFile(MultipartFile serverJsonFile);
-
-    void createBucket(BucketRequest bucketRequest);
-
-    void deleteBucket(String bucketId);
-
-    void updateBucket(String bucketId, BucketRequest bucketRequest);
-
-    void updateBucketsFromServerJSON();
 }
