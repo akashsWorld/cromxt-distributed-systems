@@ -65,13 +65,13 @@ public class DynamicRouteService implements RouteDefinitionLocator, RouterServic
     private RouteDefinition createRouteDefinition(BucketRequest bucketRequest) {
             RouteDefinition routeDefinition = new RouteDefinition();
 
-            String requestPath = String.format("/%s/api/v1/medias/**", bucketRequest.id());
-            String rewritePathDefinition = String.format("RewritePath=/%s(?<segment>/?.*), $\\{segment}", bucketRequest.id());
+            String requestPath = String.format("/%s/api/v1/medias/**", bucketRequest.getId());
+            String rewritePathDefinition = String.format("RewritePath=/%s(?<segment>/?.*), $\\{segment}", bucketRequest.getId());
             String protocol = isSecure ? "https" : "http";
-            String bucketUrl = String.format("%s://%s:%d/api/v1/medias/**",protocol, bucketRequest.hostname(), bucketRequest.port());
+            String bucketUrl = String.format("%s://%s:%d/api/v1/medias/**",protocol, bucketRequest.getHostname(), bucketRequest.getPort());
 
 //                    ADD predicates to the route.
-            routeDefinition.setId(bucketRequest.id());
+            routeDefinition.setId(bucketRequest.getId());
             routeDefinition.setPredicates(List.of(
                     new PredicateDefinition("Method=POST,GET"),
                     new PredicateDefinition("Path=" + requestPath)
