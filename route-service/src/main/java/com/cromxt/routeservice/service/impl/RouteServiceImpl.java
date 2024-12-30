@@ -17,6 +17,6 @@ public class RouteServiceImpl implements RouteService {
 
     @Override
     public Flux<BucketRequest> getAllAvailableRoutes() {
-        return availableRouteDiscovererService.getAllAvailableRoutes();
+        return null;
     }
 }

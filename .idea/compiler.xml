@@ -12,7 +12,7 @@
         <module name="common-file-modules" />
         <module name="bucket-gateway" />
         <module name="route-service" />
-        <module name="file-store" />
+        <module name="cloud-store" />
       </profile>
     </annotationProcessing>
   </component>
@@ -21,7 +21,7 @@
       <module name="bucket" options="-parameters" />
       <module name="bucket-gateway" options="-parameters" />
       <module name="bucket-server" options="-parameters" />
-      <module name="file-store" options="-parameters" />
+      <module name="cloud-store" options="-parameters" />
       <module name="route-service" options="-parameters" />
     </option>
   </component>

@@ -11,6 +11,7 @@
         <option value="$PROJECT_DIR$/bucket-gateway/pom.xml" />
         <option value="$PROJECT_DIR$/route-service/pom.xml" />
         <option value="$PROJECT_DIR$/bucket-server/pom.xml" />
+        <option value="$PROJECT_DIR$/cloud-store/pom.xml" />
       </list>
     </option>
   </component>
