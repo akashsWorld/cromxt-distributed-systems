@@ -1,6 +1,6 @@
 package com.cromxt.bucketserver.service;
 
-import com.cromxt.file.handler.dtos.requests.BucketObjects;
+import com.cromxt.dtos.requests.BucketObjects;
 import org.springframework.http.codec.multipart.FilePart;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

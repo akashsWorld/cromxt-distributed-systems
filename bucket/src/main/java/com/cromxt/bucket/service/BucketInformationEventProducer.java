@@ -1,7 +1,7 @@
 package com.cromxt.bucket.service;
 
 
-import com.cromxt.kafka.BucketInformation;
+import com.cromxt.dtos.requests.BucketInformation;
 import org.springframework.core.env.Environment;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -25,12 +25,12 @@ public class BucketInformationEventProducer {
             Environment environment,
             ApplicationHostNetworkFinder applicationHostNetworkFinder) {
         this.kafkaTemplate = kafkaTemplate;
-        this.topic = environment.getProperty("BUCKET_SERVICE.KAFKA_TOPIC_NAME", String.class, "buckets");
-        this.storagePath = environment.getProperty("BUCKET_SERVICE.STORAGE_PATH", String.class, "C:/Users/akash/Downloads/root_bucket");
+        this.topic = environment.getProperty("BUCKET_CONFIG_KAFKA_TOPIC_NAME", String.class, "buckets");
+        this.storagePath = environment.getProperty("BUCKET_CONFIG_STORAGE_PATH", String.class, "C:/Users/akash/Downloads/root_bucket");
 
         APPLICATION_HOSTNAME = applicationHostNetworkFinder.getApplicationHostname();
         APPLICATION_PORT = applicationHostNetworkFinder.getApplicationPort();
-        UNIQUE_BUCKET_ID = environment.getProperty("BUCKET_UNIQUE_ID", String.class, "1");
+        UNIQUE_BUCKET_ID = environment.getProperty("BUCKET_CONFIG_ID", String.class, "1");
     }
 
     @Scheduled(fixedRate = 15000)

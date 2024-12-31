@@ -4,7 +4,7 @@ import com.cromxt.bucketserver.exception.InvalidServerJSONFile;
 import com.cromxt.bucketserver.models.Buckets;
 import com.cromxt.bucketserver.repository.BucketsRepository;
 import com.cromxt.bucketserver.service.BucketService;
-import com.cromxt.file.handler.dtos.requests.BucketObjects;
+import com.cromxt.dtos.requests.BucketObjects;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;

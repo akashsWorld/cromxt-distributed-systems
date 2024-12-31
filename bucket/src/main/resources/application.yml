@@ -1,5 +1,7 @@
-BUCKET_HOST_NAME_AUTO_DISCOVERY: true
-BUCKET_UNIQUE_ID: 1
+BUCKET_CONFIG_MACHINE_IP_AUTO_DISCOVERY: true
+BUCKET_CONFIG_SERVICE_PORT: 8901
+BUCKET_CONFIG_STORAGE_PATH: "C:/Users/akash/Downloads/root_bucket"
+BUCKET_CONFIG_ID: "1"
 spring:
   application:
     name: bucket
@@ -8,4 +10,4 @@ spring:
     producer:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 server:
-  port: 8090
+  port: "${ROUTE_SERVICE_CONFIG_SERVICE_PORT}"

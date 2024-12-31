@@ -2,8 +2,8 @@ package com.cromxt.bucketserver.controller;
 
 
 import com.cromxt.bucketserver.service.BucketService;
-import com.cromxt.file.handler.dtos.requests.BucketObjects;
-import com.cromxt.response.GlobalResponse;
+import com.cromxt.dtos.requests.BucketObjects;
+import com.cromxt.dtos.response.GlobalResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

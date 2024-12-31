@@ -1,6 +1,6 @@
 package com.cromxt.routeservice.service.impl;
 
-import com.cromxt.file.handler.dtos.requests.BucketObjects;
+import com.cromxt.dtos.requests.BucketObjects;
 import com.cromxt.routeservice.service.RouteService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

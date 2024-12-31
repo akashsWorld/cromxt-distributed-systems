@@ -1,7 +1,7 @@
 package com.cromxt.routeservice.service.impl;
 
-import com.cromxt.kafka.BucketInformation;
-import com.cromxt.kafka.BucketsUpdateRequest;
+import com.cromxt.dtos.requests.BucketInformation;
+import com.cromxt.dtos.requests.BucketsUpdateRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

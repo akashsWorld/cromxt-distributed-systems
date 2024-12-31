@@ -1,13 +1,10 @@
-FILE_STORE:
-  SERVER_PORT: ${SERVER_PORT:8550}
-  MONGO_URL: ${MONGO_URL:mongodb://root:password@localhost:27017/file-store?authSource=admin}
-  GATEWAY_URL: ${GATEWAY_URL:http://localhost:9090}
+CLOUD_STORE_CONFIG_SERVER_PORT: 8903
 spring:
   application:
-    name: file-store
+    name: cloud-store
   data:
     mongodb:
       uri: ${FILE_STORE.MONGO_URL}
 server:
-  port: ${FILE_STORE.SERVER_PORT}
+  port: ${CLOUD_STORE_CONFIG_SERVER_PORT}
 

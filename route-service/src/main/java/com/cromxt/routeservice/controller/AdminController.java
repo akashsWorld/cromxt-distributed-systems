@@ -1,6 +1,6 @@
 package com.cromxt.routeservice.controller;
 
-import com.cromxt.file.handler.dtos.requests.BucketObjects;
+import com.cromxt.dtos.requests.BucketObjects;
 import com.cromxt.routeservice.service.RouteService;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;

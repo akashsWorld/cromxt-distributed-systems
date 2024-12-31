@@ -1,6 +1,6 @@
 package com.cromxt.routeservice.config;
 
-import com.cromxt.kafka.BucketInformation;
+import com.cromxt.dtos.requests.BucketInformation;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;
@@ -20,13 +20,13 @@ public class BucketsHeartbeatKafkaConsumerConfig {
 
     @Bean
     public ConsumerFactory<String, BucketInformation> bucketsHeartbeatConsumerFactory(Environment environment) {
-        String bootstrapServers = environment.getProperty("ROUTE_SERVICE_BOOTSTRAP_SERVERS", String.class);
+        String bootstrapServers = environment.getProperty("ROUTE_SERVICE_HEARTBEAT_BOOTSTRAP_SERVERS", String.class,"localhost:9092");
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, String.format("%s-%s",UUID.randomUUID(), UUID.randomUUID()));
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "com.cromxt.kafka.BucketInformation"); // Ensure correct type
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "com.cromxt.dtos.requests.BucketInformation"); // Ensure correct type
         return new DefaultKafkaConsumerFactory<>(props);
     }
 

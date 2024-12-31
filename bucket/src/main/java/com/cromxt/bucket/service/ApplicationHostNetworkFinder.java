@@ -20,8 +20,8 @@ public class ApplicationHostNetworkFinder {
     public ApplicationHostNetworkFinder(
             Environment environment
     ) {
-        APPLICATION_HOSTNAME_AUTO_DISCOVERY = environment.getProperty("BUCKET_HOST_NAME_AUTO_DISCOVERY", Boolean.class, false);
-        APPLICATION_PORT = environment.getProperty("server.port", Integer.class, 8090);
+        APPLICATION_HOSTNAME_AUTO_DISCOVERY = environment.getProperty("BUCKET_CONFIG_MACHINE_IP_AUTO_DISCOVERY", Boolean.class, false);
+        APPLICATION_PORT = environment.getProperty("BUCKET_CONFIG_SERVICE_PORT", Integer.class, 8901);
     }
 
     public String getApplicationHostname() {

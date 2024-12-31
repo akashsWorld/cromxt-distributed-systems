@@ -5,4 +5,4 @@ spring:
     mongodb:
       uri: mongodb://root:password@localhost:27017/buckets?authSource=admin
 server:
-  port: 8888
+  port: 8902

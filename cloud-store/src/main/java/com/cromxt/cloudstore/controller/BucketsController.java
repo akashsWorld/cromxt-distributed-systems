@@ -1,6 +1,6 @@
 package com.cromxt.cloudstore.controller;
 
-import com.cromxt.file.handler.dtos.requests.BucketObjects;
+import com.cromxt.dtos.requests.BucketObjects;
 import com.cromxt.cloudstore.service.BucketService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
