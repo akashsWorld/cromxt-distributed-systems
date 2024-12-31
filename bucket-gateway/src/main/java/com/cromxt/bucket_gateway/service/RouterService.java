@@ -1,6 +1,6 @@
 package com.cromxt.bucket_gateway.service;
 
-import com.cromxt.kafka.BucketObjects;
+import com.cromxt.file.handler.dtos.requests.BucketObjects;
 import reactor.core.publisher.Mono;
 
 public interface RouterService {

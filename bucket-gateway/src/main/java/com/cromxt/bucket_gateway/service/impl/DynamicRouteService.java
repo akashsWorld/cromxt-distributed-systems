@@ -2,7 +2,7 @@ package com.cromxt.bucket_gateway.service.impl;
 
 import com.cromxt.bucket_gateway.client.RouteServerClient;
 import com.cromxt.bucket_gateway.service.RouterService;
-import com.cromxt.kafka.BucketObjects;
+import com.cromxt.file.handler.dtos.requests.BucketObjects;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.event.RefreshRoutesEvent;
 import org.springframework.cloud.gateway.filter.FilterDefinition;

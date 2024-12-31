@@ -1,7 +1,7 @@
 package com.cromxt.routeservice.client;
 
 
-import com.cromxt.kafka.BucketObjects;
+import com.cromxt.file.handler.dtos.requests.BucketObjects;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;

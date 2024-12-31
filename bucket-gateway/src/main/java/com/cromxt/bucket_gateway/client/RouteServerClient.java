@@ -1,6 +1,6 @@
 package com.cromxt.bucket_gateway.client;
 
-import com.cromxt.kafka.BucketObjects;
+import com.cromxt.file.handler.dtos.requests.BucketObjects;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatusCode;

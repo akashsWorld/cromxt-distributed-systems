@@ -1,7 +1,7 @@
 package com.cromxt.routeservice.controller;
 
 
-import com.cromxt.kafka.BucketObjects;
+import com.cromxt.file.handler.dtos.requests.BucketObjects;
 import com.cromxt.routeservice.service.RouteService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

@@ -1,6 +1,6 @@
 package com.cromxt.cloudstore.service.impl;
 
-import com.cromxt.kafka.BucketObjects;
+import com.cromxt.file.handler.dtos.requests.BucketObjects;
 import com.cromxt.cloudstore.repository.BucketRepository;
 import com.cromxt.cloudstore.service.BucketService;
 import lombok.RequiredArgsConstructor;

@@ -1,7 +1,7 @@
 package com.cromxt.cloudstore.clients;
 
 
-import com.cromxt.kafka.BucketObjects;
+import com.cromxt.file.handler.dtos.requests.BucketObjects;
 import com.cromxt.file.handler.dtos.response.ErrorResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
