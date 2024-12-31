@@ -1,4 +1,5 @@
 CLOUD_STORE_CONFIG_SERVER_PORT: 8903
+CLOUD_STORE_CONFIG_ROUTE_SERVICE_URL: http://localhost:8904
 spring:
   application:
     name: cloud-store

@@ -34,5 +34,4 @@ public class BucketServerClient {
                 .bodyToFlux(BucketObjects.class);
     }
 
-
 }
