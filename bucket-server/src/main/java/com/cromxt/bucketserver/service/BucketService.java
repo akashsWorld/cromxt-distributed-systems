@@ -1,21 +1,20 @@
 package com.cromxt.bucketserver.service;
 
-import com.cromxt.file.handler.dtos.requests.BucketRequest;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
+import com.cromxt.kafka.BucketObjects;
+import org.springframework.http.codec.multipart.FilePart;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public interface BucketService {
-    List<BucketRequest> getAllBuckets();
+    Flux<BucketObjects> getAllBuckets();
 
-    void saveBucketsFromServerJSONFile(MultipartFile serverJsonFile);
+    Mono<Void> saveBucketsFromServerJSONFile(FilePart serverJsonFile);
 
-    void createBucket(BucketRequest bucketRequest);
+    void createBucket(BucketObjects bucketObjects);
 
     void deleteBucket(String bucketId);
 
-    void updateBucket(String bucketId, BucketRequest bucketRequest);
+    void updateBucket(String bucketId, BucketObjects bucketObjects);
 
     void updateBucketsFromServerJSON();
 }

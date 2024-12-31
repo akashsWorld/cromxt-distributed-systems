@@ -1,18 +1,8 @@
-BUCKET_SERVICE_CONSUMER_GROUP_ID: bucket
+ROUTE_SERVICE_BOOTSTRAP_SERVERS: "localhost:9092"
+ROUTE_SERVICE_BUCKET_HEARTBEAT_TOPIC: "buckets"
+ROUTE_SERVICE_BUCKET_INFORMATION_UPDATE_TOPIC: "buckets-update"
 spring:
   application:
     name: route-service
-  kafka:
-    bootstrap-servers: localhost:9092
-    consumer:
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      heartbeat-interval: 5000
-      group-id: ${BUCKET_SERVICE_CONSUMER_GROUP_ID}
-      properties:
-        spring:
-          json:
-            trusted:
-              packages: com.cromxt.buckets
 server:
   port: 8543

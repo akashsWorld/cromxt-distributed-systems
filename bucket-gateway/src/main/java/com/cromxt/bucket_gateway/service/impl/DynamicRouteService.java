@@ -2,7 +2,7 @@ package com.cromxt.bucket_gateway.service.impl;
 
 import com.cromxt.bucket_gateway.client.RouteServerClient;
 import com.cromxt.bucket_gateway.service.RouterService;
-import com.cromxt.file.handler.dtos.requests.BucketRequest;
+import com.cromxt.kafka.BucketObjects;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.event.RefreshRoutesEvent;
 import org.springframework.cloud.gateway.filter.FilterDefinition;
@@ -38,14 +38,14 @@ public class DynamicRouteService implements RouteDefinitionLocator, RouterServic
         this.applicationEventPublisher = applicationEventPublisher;
 
         // Add all the routes to the list getting from file-store server.
-        Stream<BucketRequest> bucketRequests = routeServerClient.getAllAvailableRoutes().toStream();
+        Stream<BucketObjects> bucketRequests = routeServerClient.getAllAvailableRoutes().toStream();
         bucketRequests.forEach(bucketRequest -> this.routeDefinitions.add(createRouteDefinition(bucketRequest)));
         if(this.routeDefinitions.isEmpty()) log.warn("Gateway starts with 0 buckets");
     }
 
     @Override
-    public Mono<Void> addRoute(BucketRequest bucketRequest) {
-        return routeDefinitionWriter.save(Mono.just(createRouteDefinition(bucketRequest))).doOnSuccess(routeDefinitions->{
+    public Mono<Void> addRoute(BucketObjects bucketObjects) {
+        return routeDefinitionWriter.save(Mono.just(createRouteDefinition(bucketObjects))).doOnSuccess(routeDefinitions->{
             applicationEventPublisher.publishEvent(new RefreshRoutesEvent(this));
         });
     }
@@ -58,20 +58,20 @@ public class DynamicRouteService implements RouteDefinitionLocator, RouterServic
     }
 
     @Override
-    public Mono<Void> updateRoute(String routeId, BucketRequest bucketRequest) {
-        return routeDefinitionWriter.delete(Mono.just(routeId)).then(this.addRoute(bucketRequest));
+    public Mono<Void> updateRoute(String routeId, BucketObjects bucketObjects) {
+        return routeDefinitionWriter.delete(Mono.just(routeId)).then(this.addRoute(bucketObjects));
     }
 
-    private RouteDefinition createRouteDefinition(BucketRequest bucketRequest) {
+    private RouteDefinition createRouteDefinition(BucketObjects bucketObjects) {
             RouteDefinition routeDefinition = new RouteDefinition();
 
-            String requestPath = String.format("/%s/api/v1/medias/**", bucketRequest.getId());
-            String rewritePathDefinition = String.format("RewritePath=/%s(?<segment>/?.*), $\\{segment}", bucketRequest.getId());
+            String requestPath = String.format("/%s/api/v1/medias/**", bucketObjects.getId());
+            String rewritePathDefinition = String.format("RewritePath=/%s(?<segment>/?.*), $\\{segment}", bucketObjects.getId());
             String protocol = isSecure ? "https" : "http";
-            String bucketUrl = String.format("%s://%s:%d/api/v1/medias/**",protocol, bucketRequest.getHostname(), bucketRequest.getPort());
+            String bucketUrl = String.format("%s://%s:%d/api/v1/medias/**",protocol, bucketObjects.getHostname(), bucketObjects.getPort());
 
 //                    ADD predicates to the route.
-            routeDefinition.setId(bucketRequest.getId());
+            routeDefinition.setId(bucketObjects.getId());
             routeDefinition.setPredicates(List.of(
                     new PredicateDefinition("Method=POST,GET"),
                     new PredicateDefinition("Path=" + requestPath)

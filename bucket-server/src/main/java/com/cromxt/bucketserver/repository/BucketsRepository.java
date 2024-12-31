@@ -2,7 +2,7 @@ package com.cromxt.bucketserver.repository;
 
 
 import com.cromxt.bucketserver.models.Buckets;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 
-public interface BucketsRepository extends MongoRepository<Buckets, String> {
+public interface BucketsRepository extends ReactiveMongoRepository<Buckets, String> {
 }

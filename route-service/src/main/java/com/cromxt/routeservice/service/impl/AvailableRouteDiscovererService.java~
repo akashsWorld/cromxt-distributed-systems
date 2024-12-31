@@ -27,14 +27,13 @@ public class AvailableRouteDiscovererService {
 
     @KafkaListener(topics = "${ROUTE_SERVICE_BUCKET_HEARTBEAT_TOPIC}",containerFactory = "bucketsHeartbeatKafkaListenerContainerFactory")
     private void bucketListUpdated(BucketInformation bucketInformation) {
-//        ALL_BUCKETS.put(bucketInformation.getBucketId(),
-//                AvailableBuckets.builder()
-//                        .hostName(bucketInformation.getBucketHostName())
-//                        .port(bucketInformation.getPort())
-//                        .initializationTime(System.currentTimeMillis())
-//                        .availableSpaceInBytes(bucketInformation.getAvailableSpaceInBytes())
-//                        .build());
-        System.out.println(bucketInformation);
+        ALL_BUCKETS.put(bucketInformation.getBucketId(),
+                AvailableBuckets.builder()
+                        .hostName(bucketInformation.getBucketHostName())
+                        .port(bucketInformation.getPort())
+                        .initializationTime(System.currentTimeMillis())
+                        .availableSpaceInBytes(bucketInformation.getAvailableSpaceInBytes())
+                        .build());
 
     }
     @KafkaListener(topics = "${ROUTE_SERVICE_BUCKET_INFORMATION_UPDATE_TOPIC}",containerFactory = "bucketsUpdateKafkaListenerContainerFactory")

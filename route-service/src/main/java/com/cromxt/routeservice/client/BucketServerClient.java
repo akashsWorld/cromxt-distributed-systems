@@ -1,9 +1,7 @@
 package com.cromxt.routeservice.client;
 
 
-import com.cromxt.buckets.BucketInformation;
-import com.cromxt.file.handler.dtos.requests.BucketRequest;
-import lombok.RequiredArgsConstructor;
+import com.cromxt.kafka.BucketObjects;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
@@ -27,13 +25,13 @@ public class BucketServerClient {
                 .build();
     }
 
-    public Flux<BucketRequest> getAllBuckets() {
+    public Flux<BucketObjects> getAllBuckets() {
         return webClient
                 .get()
                 .uri("/api/v1/buckets")
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, clientResponse -> Mono.error(new RuntimeException("Something went wrong")))
-                .bodyToFlux(BucketRequest.class);
+                .bodyToFlux(BucketObjects.class);
     }
 
 

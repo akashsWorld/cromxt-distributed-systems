@@ -1,7 +1,7 @@
 package com.cromxt.cloudstore.clients;
 
 
-import com.cromxt.file.handler.dtos.requests.BucketRequest;
+import com.cromxt.kafka.BucketObjects;
 import com.cromxt.file.handler.dtos.response.ErrorResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
@@ -17,11 +17,11 @@ public class GatewayClient {
     private final WebClient webClient;
 
 
-    public Mono<Void> addRoute(BucketRequest bucketRequest){
+    public Mono<Void> addRoute(BucketObjects bucketObjects){
         return webClient.post()
                 .uri("/api/v1/gateway")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(bucketRequest)
+                .bodyValue(bucketObjects)
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, clientResponse -> clientResponse.bodyToMono(ErrorResponse.class)
                         .map(errorResponse -> new RuntimeException(errorResponse.message()))

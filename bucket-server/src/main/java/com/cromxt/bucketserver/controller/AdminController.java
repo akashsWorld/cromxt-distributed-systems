@@ -2,18 +2,19 @@ package com.cromxt.bucketserver.controller;
 
 
 import com.cromxt.bucketserver.service.BucketService;
-import com.cromxt.file.handler.dtos.requests.BucketRequest;
+import com.cromxt.kafka.BucketObjects;
+import com.cromxt.response.GlobalResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Controller
-@RequestMapping("/admin")
+@RequestMapping("/api/v1/admin")
 @RequiredArgsConstructor
 public class AdminController {
 
@@ -22,13 +23,14 @@ public class AdminController {
 
 
     @GetMapping
-    public ResponseEntity<List<BucketRequest>> getAllBuckets() {
-        return ResponseEntity.ok(bucketService.getAllBuckets());
+    @ResponseStatus(HttpStatus.OK)
+    public Flux<BucketObjects> getAllBuckets() {
+        return bucketService.getAllBuckets();
     }
 
     @PostMapping
-    public ResponseEntity<Void> addBucket(@RequestBody BucketRequest bucketRequest){
-        bucketService.createBucket(bucketRequest);
+    public ResponseEntity<Void> addBucket(@RequestBody BucketObjects bucketObjects){
+        bucketService.createBucket(bucketObjects);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -39,22 +41,30 @@ public class AdminController {
     }
 
     @PatchMapping ("/{bucketId}")
-    public ResponseEntity<Void> updateBucket(@PathVariable String bucketId,@RequestBody BucketRequest bucketRequest){
-        bucketService.updateBucket(bucketId,bucketRequest);
+    public ResponseEntity<Void> updateBucket(@PathVariable String bucketId,@RequestBody BucketObjects bucketObjects){
+        bucketService.updateBucket(bucketId, bucketObjects);
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 
     @PutMapping("/update/from-server-json")
-    public ResponseEntity<Void> deleteAllBuckets(){
+    public Mono<ResponseEntity<Void>> deleteAllBuckets(){
         bucketService.updateBucketsFromServerJSON();
-        return new ResponseEntity<>(HttpStatus.ACCEPTED);
+        return Mono.empty();
     }
 
     @PostMapping("/from-server-json")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Void> addBucketsFromServerJSON(@ModelAttribute MultipartFile serverJsonFile){
-        bucketService.saveBucketsFromServerJSONFile(serverJsonFile);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+    public Mono<ResponseEntity<GlobalResponse>> addBucketsFromServerJSON(@ModelAttribute FilePart serverJsonFile){
+        return bucketService.saveBucketsFromServerJSONFile(serverJsonFile)
+                .then(
+                        Mono.just(new ResponseEntity<>(GlobalResponse.builder().message("Buckets Added Successfully").build(),
+                                HttpStatus.CREATED)
+                        )
+                )
+                .onErrorResume(e->
+                        Mono.just(new ResponseEntity<>(GlobalResponse.builder().message(e.getMessage()).build(),
+                                HttpStatus.BAD_REQUEST)
+                        )
+                );
     }
 
 }

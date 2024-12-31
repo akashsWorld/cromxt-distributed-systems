@@ -1,6 +1,6 @@
 package com.cromxt.bucket_gateway.client;
 
-import com.cromxt.file.handler.dtos.requests.BucketRequest;
+import com.cromxt.kafka.BucketObjects;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatusCode;
@@ -23,13 +23,13 @@ public class RouteServerClient {
                 .build();
     }
 
-    public Flux<BucketRequest> getAllAvailableRoutes() {
+    public Flux<BucketObjects> getAllAvailableRoutes() {
             return webClient
                     .get()
                     .uri("/api/v1/routes")
                     .retrieve()
                     .onStatus(HttpStatusCode::isError, clientResponse -> Mono.error(new RuntimeException("Something went wrong")))
-                    .bodyToFlux(BucketRequest.class)
+                    .bodyToFlux(BucketObjects.class)
                     .onErrorResume(ex-> {
                         log.error("{}",ex.getCause().getMessage());
                         log.warn("Gateway starts with 0 buckets");

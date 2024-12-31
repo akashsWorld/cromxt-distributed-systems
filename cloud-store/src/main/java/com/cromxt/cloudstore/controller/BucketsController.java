@@ -1,6 +1,6 @@
 package com.cromxt.cloudstore.controller;
 
-import com.cromxt.file.handler.dtos.requests.BucketRequest;
+import com.cromxt.kafka.BucketObjects;
 import com.cromxt.cloudstore.service.BucketService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,7 +19,7 @@ public class BucketsController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Flux<BucketRequest> getBuckets() {
+    public Flux<BucketObjects> getBuckets() {
         return bucketService.fidAllBuckets();
     }
 }

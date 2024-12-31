@@ -1,10 +1,10 @@
 package com.cromxt.bucket_gateway.service;
 
-import com.cromxt.file.handler.dtos.requests.BucketRequest;
+import com.cromxt.kafka.BucketObjects;
 import reactor.core.publisher.Mono;
 
 public interface RouterService {
-    Mono<Void> addRoute(BucketRequest bucketRequest);
+    Mono<Void> addRoute(BucketObjects bucketObjects);
     Mono<Void> deleteRoute(String routeId);
-    Mono<Void> updateRoute(String routeId, BucketRequest bucketRequest);
+    Mono<Void> updateRoute(String routeId, BucketObjects bucketObjects);
 }

@@ -4,18 +4,20 @@ import com.cromxt.bucketserver.exception.InvalidServerJSONFile;
 import com.cromxt.bucketserver.models.Buckets;
 import com.cromxt.bucketserver.repository.BucketsRepository;
 import com.cromxt.bucketserver.service.BucketService;
-import com.cromxt.file.handler.dtos.requests.BucketRequest;
+import com.cromxt.kafka.BucketObjects;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.io.File;
-import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Service
@@ -26,40 +28,54 @@ public class BucketServiceImpl implements BucketService {
     private final BucketsRepository bucketsRepository;
 
     @Override
-    public List<BucketRequest> getAllBuckets() {
-        List<Buckets> buckets = bucketsRepository.findAll();
-        return buckets.stream().map(eachBucket-> BucketRequest.builder()
-                .id(eachBucket.getId())
-                .hostname(eachBucket.getHostname())
-                .port(eachBucket.getPort())
-                .build()
-        ).toList();
+    public Flux<BucketObjects> getAllBuckets() {
+       return bucketsRepository.findAll().map(
+               buckets -> BucketObjects.builder()
+                       .id(buckets.getId())
+                       .hostname(buckets.getHostname())
+                       .port(buckets.getPort())
+                       .build()
+       );
     }
 
     @Override
-    public void saveBucketsFromServerJSONFile(MultipartFile serverJsonFile) {
+    public Mono<Void> saveBucketsFromServerJSONFile(FilePart serverJsonFile) {
         ObjectMapper objectMapper = new ObjectMapper();
-        final BucketsJSONData bucketsJSONData;
-        try{
-            File file = serverJsonFile.getResource().getFile();
-            bucketsJSONData = objectMapper.readValue(file,BucketsJSONData.class);
-        }
-        catch (IOException ioException){
-            log.error("Unable to parse the json data {}",ioException.getMessage());
-            throw new InvalidServerJSONFile(ioException.getMessage());
-        }
-
-        List<Buckets> bucketsList = bucketsJSONData.buckets.stream().map(bucketsEntities ->
-                Buckets.builder()
+        return serverJsonFile.content()
+                .flatMap(dataBuffer -> {
+                    byte[] bytes = new byte[dataBuffer.readableByteCount()];
+                    dataBuffer.read(bytes);
+                    return Mono.just(new String(bytes, StandardCharsets.UTF_8));
+                })
+                .collectList()
+                .map(strings -> String.join("", strings))
+                .handle((data, sink) -> {
+                    BucketsJSONData bucketsJSONData = null;
+                    try {
+                        bucketsJSONData = objectMapper.readValue(data, BucketsJSONData.class);
+                    } catch (JsonProcessingException e) {
+                        sink.error(new RuntimeException(e));
+                    }
+                    if(bucketsJSONData == null || bucketsJSONData.getBuckets().isEmpty()){
+                        sink.error(new InvalidServerJSONFile("Invalid server json file"));
+                    }
+                    assert bucketsJSONData != null;
+                    sink.next(bucketsJSONData.getBuckets());
+                })
+                .onErrorResume(Mono::error)
+                .flatMapMany(bucketEntities
+                        -> Flux.fromIterable((List<BucketsEntities>)bucketEntities))
+                .map(bucketsEntities -> Buckets.builder()
                         .hostname(bucketsEntities.getHostName())
                         .port(bucketsEntities.getPort())
-                        .build()).toList();
-
-        bucketsRepository.saveAll(bucketsList);
+                        .build())
+                .flatMap(bucketsRepository::save)
+                .onErrorResume(Mono::error)
+                .then(Mono.empty());
     }
 
     @Override
-    public void createBucket(BucketRequest bucketRequest) {
+    public void createBucket(BucketObjects bucketObjects) {
 
     }
 
@@ -69,7 +85,7 @@ public class BucketServiceImpl implements BucketService {
     }
 
     @Override
-    public void updateBucket(String bucketId, BucketRequest bucketRequest) {
+    public void updateBucket(String bucketId, BucketObjects bucketObjects) {
 
     }
 

@@ -1,7 +1,7 @@
 package com.cromxt.bucket.service;
 
 
-import com.cromxt.buckets.BucketInformation;
+import com.cromxt.kafka.BucketInformation;
 import org.springframework.core.env.Environment;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;

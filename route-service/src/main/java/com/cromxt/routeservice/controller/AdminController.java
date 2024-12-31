@@ -1,6 +1,6 @@
 package com.cromxt.routeservice.controller;
 
-import com.cromxt.file.handler.dtos.requests.BucketRequest;
+import com.cromxt.kafka.BucketObjects;
 import com.cromxt.routeservice.service.RouteService;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -15,22 +15,22 @@ public record AdminController (
 ){
 
     @GetMapping
-    public Flux<BucketRequest> getAllRoutes(){
+    public Flux<BucketObjects> getAllRoutes(){
         return Flux.fromIterable(List.of(
-                new BucketRequest("1", "localhost", 8080),
-                new BucketRequest("2", "localhost", 8080),
-                new BucketRequest("3", "localhost", 8080),
-                new BucketRequest("4", "localhost", 8080)
+                new BucketObjects("1", "localhost", 8080),
+                new BucketObjects("2", "localhost", 8080),
+                new BucketObjects("3", "localhost", 8080),
+                new BucketObjects("4", "localhost", 8080)
         ));
     }
 
     @PostMapping
-    public Mono<Void> saveRoute(BucketRequest bucketRequest){
+    public Mono<Void> saveRoute(BucketObjects bucketObjects){
         return null;
     }
 
     @PutMapping("/{routeId}")
-    public Mono<Void> updateRoute(@PathVariable String routeId, BucketRequest bucketRequest){
+    public Mono<Void> updateRoute(@PathVariable String routeId, BucketObjects bucketObjects){
         return null;
     }
     @DeleteMapping("/{routeId}")
