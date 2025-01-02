@@ -1,6 +1,7 @@
 package com.cromxt.cloudstore.clients.impl;
 
 import com.cromxt.cloudstore.clients.BucketClient;
+import com.cromxt.cloudstore.dtos.response.MediaObjectDetails;
 import com.cromxt.dtos.response.BucketDetails;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -23,7 +24,7 @@ public class BucketHTTPClient implements BucketClient {
     }
 
     @Override
-    public Mono<String> uploadFile(Flux<DataBuffer> fileData, BucketDetails bucketDetails) {
+    public Mono<MediaObjectDetails> uploadFile(Flux<DataBuffer> fileData, BucketDetails bucketDetails) {
 
         String url = generateUrl(bucketDetails);
         return fileData
@@ -32,7 +33,7 @@ public class BucketHTTPClient implements BucketClient {
                     MultipartBodyBuilder builder = new MultipartBodyBuilder();
                     builder
                             .asyncPart("file", DataBufferUtils.join(Flux.fromIterable(dataBuffers)), DataBuffer.class)
-                            .header("Content-Disposition", "form-data; name=file; filename=" + fileId);
+                            .header("Content-Disposition", "form-data; name=file; filename=" + "file");
 
                     return webClient.post()
                             .uri(url)
@@ -44,7 +45,10 @@ public class BucketHTTPClient implements BucketClient {
                                 return Mono.error(new RuntimeException("Bucket " + url + " is not available"));
                             })
                             .bodyToMono(String.class);
-                });
+                })
+                .flatMap(fileResponse->
+//                        TODO: Handle the Response.
+                        Mono.empty());
     }
 
     private String generateUrl(BucketDetails bucketDetails) {

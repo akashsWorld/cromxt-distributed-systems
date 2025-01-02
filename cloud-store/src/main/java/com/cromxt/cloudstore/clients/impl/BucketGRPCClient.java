@@ -1,9 +1,9 @@
 package com.cromxt.cloudstore.clients.impl;
 
 import com.cromxt.cloudstore.clients.BucketClient;
+import com.cromxt.cloudstore.dtos.response.MediaObjectDetails;
 import com.cromxt.dtos.response.BucketDetails;
-import com.cromxt.files.proto.FileUploadRequest;
-import com.cromxt.files.proto.FileUploadResponse;
+import com.cromxt.files.proto.FileUploadGRPCRequest;
 import com.cromxt.files.proto.MediaHandlerServiceGrpc;
 import com.cromxt.files.proto.ReactorMediaHandlerServiceGrpc;
 import com.google.protobuf.ByteString;
@@ -19,20 +19,25 @@ import reactor.core.publisher.Mono;
 public class BucketGRPCClient implements BucketClient {
 
     @Override
-    public Mono<String> uploadFile(Flux<DataBuffer> fileData, BucketDetails bucketDetails) {
+    public Mono<MediaObjectDetails> uploadFile(Flux<DataBuffer> fileData, BucketDetails bucketDetails) {
         ReactorMediaHandlerServiceGrpc.ReactorMediaHandlerServiceStub reactorMediaHandlerServiceStub =
                 getReactorMediaHandlerServiceStub(bucketDetails);
 
-        Flux<FileUploadRequest> data = fileData
+        Flux<FileUploadGRPCRequest> data = fileData
                 .map(dataBuffer -> {
                             byte[] bytes = new byte[dataBuffer.readableByteCount()];
                             dataBuffer.read(bytes);
-                            return FileUploadRequest.newBuilder().setFile(ByteString.copyFrom(bytes)).build();
+                            return FileUploadGRPCRequest.newBuilder().setFile(ByteString.copyFrom(bytes)).build();
                         }
                 );
-        return reactorMediaHandlerServiceStub
-                .uploadFile(data)
-                .map(FileUploadResponse::getFileId);
+        return data.as(reactorMediaHandlerServiceStub.withInterceptors(
+//                TODO:Add the interceptor for the grpc call.
+                )::uploadFile)
+                .flatMap(
+                        fileUploadResponse ->
+//                                TODO: Handle the response.
+                                Mono.empty()
+                );
     }
 
     private MediaHandlerServiceGrpc.MediaHandlerServiceStub getMediaHandlerServiceStub(BucketDetails bucketDetails) {
