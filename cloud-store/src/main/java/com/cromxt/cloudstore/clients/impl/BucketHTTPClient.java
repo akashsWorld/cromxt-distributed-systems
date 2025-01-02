@@ -1,19 +1,19 @@
-package com.cromxt.cloudstore.clients;
+package com.cromxt.cloudstore.clients.impl;
 
+import com.cromxt.cloudstore.clients.BucketClient;
+import com.cromxt.dtos.response.BucketDetails;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
-import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Slf4j
-@Service(value = "bucketHTTPClient")
 public class BucketHTTPClient implements BucketClient {
 
     private final WebClient webClient;
@@ -23,8 +23,9 @@ public class BucketHTTPClient implements BucketClient {
     }
 
     @Override
-    public Mono<String> uploadFile(Flux<DataBuffer> fileData, String bucketUrl, String fileId) {
+    public Mono<String> uploadFile(Flux<DataBuffer> fileData, BucketDetails bucketDetails) {
 
+        String url = generateUrl(bucketDetails);
         return fileData
                 .collectList()
                 .flatMap(dataBuffers -> {
@@ -34,16 +35,20 @@ public class BucketHTTPClient implements BucketClient {
                             .header("Content-Disposition", "form-data; name=file; filename=" + fileId);
 
                     return webClient.post()
-                            .uri(bucketUrl)
+                            .uri(url)
                             .contentType(MediaType.MULTIPART_FORM_DATA)
                             .body(BodyInserters.fromMultipartData(builder.build()))
                             .retrieve()
                             .onStatus(HttpStatusCode::isError, clientResponse -> {
-                                log.error("Bucket {} is not available", bucketUrl);
-                                return Mono.error(new RuntimeException("Bucket " + bucketUrl + " is not available"));
+                                log.error("Bucket {} is not available", url);
+                                return Mono.error(new RuntimeException("Bucket " + url + " is not available"));
                             })
                             .bodyToMono(String.class);
                 });
+    }
+
+    private String generateUrl(BucketDetails bucketDetails) {
+        return String.format("http://%s:%s", bucketDetails.url(), bucketDetails.port());
     }
 
 }

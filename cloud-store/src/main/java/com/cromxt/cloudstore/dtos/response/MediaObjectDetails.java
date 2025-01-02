@@ -1,4 +1,5 @@
-package com.cromxt.dtos.requests;
+package com.cromxt.cloudstore.dtos.response;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @Data
-public class FileMetaData {
-    Long fileSize;
+public class MediaObjectDetails {
+    String fileId;
+    String bucketId;
+    String fileSize;
     String fileExtension;
 }

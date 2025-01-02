@@ -20,7 +20,6 @@ public class FileServiceImpl implements FileService {
     private final BucketClient bucketClient;
     private final RouteServiceClient routeService;
     private final MediaRepository mediaRepository;
-
     public FileServiceImpl(BucketClient bucketClient,
                            RouteServiceClient routeService,
                            MediaRepository mediaRepository) {
@@ -43,24 +42,24 @@ public class FileServiceImpl implements FileService {
 
 
         Mono<MediaObjectDetails> mediaObjectDetailsMono = fileMetaDataMono.flatMap(fileMetaData ->
-                routeService
-                        .getBucketId(fileMetaData)
-                        .flatMap(bucketDetails -> bucketClient
-                                .uploadFile(
-                                        mediaObject.content(),
-                                        bucketDetails
+                        routeService
+                                .getBucketId(fileMetaData)
+                                .flatMap(bucketDetails -> bucketClient
+                                        .uploadFile(
+                                                mediaObject.content(),
+                                                bucketDetails
+                                        )
                                 )
-                        )
-        );
+                );
         return mediaObjectDetailsMono.flatMap(mediaObjectDetails ->
                         mediaRepository
                                 .save(MediaObjects
-                                        .builder()
-                                        .name(mediaObjectDetails.getFileId())
-                                        .size(mediaObjectDetails.getFileSize())
-                                        .bucketId(mediaObjectDetails.getBucketId())
-                                        .fileExtension(mediaObjectDetails.getFileExtension())
-                                        .build()
+                                                .builder()
+                                                .name(mediaObjectDetails.getFileId())
+                                                .size(mediaObjectDetails.getFileSize())
+                                                .bucketId(mediaObjectDetails.getBucketId())
+                                                .fileExtension(mediaObjectDetails.getFileExtension())
+                                                .build()
                                 )
                 )
                 .map(mediaObjectDetails ->
@@ -82,7 +81,7 @@ public class FileServiceImpl implements FileService {
     private Mono<Long> getFileSize(FilePart mediaObject) {
         return mediaObject
                 .content()
-                .map(dataBuffer -> {
+                .map(dataBuffer ->{
                     long size = dataBuffer.readableByteCount();
                     dataBuffer.readPosition(0);
                     return size;
@@ -91,8 +90,7 @@ public class FileServiceImpl implements FileService {
     }
 
     private String mediaUrlBuilder(String bucketId, String fileId) {
-//       TODO:Implement the media url pattern later according to design.
-        return String.format("https://%s-%s", bucketId, fileId);
+        return String.format("https://%s.s3.amazonaws.com/%s", bucketId, fileId);
     }
 
 

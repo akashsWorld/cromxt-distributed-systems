@@ -1,7 +1,7 @@
 package com.cromxt.dtos.response;
 
-public record BucketResponse (
+public record BucketDetails(
         String url,
-        String port
+        Integer port
 ){
 }

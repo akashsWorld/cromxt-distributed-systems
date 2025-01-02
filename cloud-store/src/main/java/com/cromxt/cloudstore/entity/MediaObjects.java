@@ -18,7 +18,6 @@ public class MediaObjects {
     private String id;
     private String name;
     private String size;
-    private String path;
-    @DocumentReference
-    private Bucket bucket;
+    private String bucketId;
+    private String fileExtension;
 }
