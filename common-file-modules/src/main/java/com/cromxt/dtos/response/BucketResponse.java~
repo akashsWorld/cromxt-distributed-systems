@@ -1,0 +1,4 @@
+package com.cromxt.dtos.response;
+
+public class BucketResponse {
+}

@@ -1,11 +1,8 @@
 package com.cromxt.cloudstore.clients;
 
 
-import com.cromxt.dtos.requests.BucketObjects;
 import com.cromxt.dtos.requests.FileMetaData;
 import com.cromxt.dtos.response.BucketResponse;
-import com.cromxt.dtos.response.ErrorResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;

@@ -8,13 +8,17 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="bucket" />
-        <module name="bucket-server" />
         <module name="common-file-modules" />
-        <module name="bucket-gateway" />
         <module name="route-service" />
+        <module name="gRPC-protocolo-buffer-configuration" />
+        <module name="bucket-server" />
+        <module name="bucket-gateway" />
         <module name="cloud-store" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="gRPC-spring-boot-implementation" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
