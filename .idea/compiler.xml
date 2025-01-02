@@ -10,13 +10,14 @@
         <module name="bucket" />
         <module name="common-file-modules" />
         <module name="route-service" />
-        <module name="gRPC-protocolo-buffer-configuration" />
         <module name="bucket-server" />
         <module name="bucket-gateway" />
         <module name="cloud-store" />
+        <module name="bucket-gRPC-configuration" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="gRPC-protocolo-buffer-configuration" target="21" />
       <module name="gRPC-spring-boot-implementation" target="17" />
     </bytecodeTargetLevel>
   </component>

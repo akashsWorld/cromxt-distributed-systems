@@ -13,6 +13,7 @@
         <option value="$PROJECT_DIR$/bucket-server/pom.xml" />
         <option value="$PROJECT_DIR$/cloud-store/pom.xml" />
         <option value="$PROJECT_DIR$/gRPC-protocolo-buffer-configuration/pom.xml" />
+        <option value="$PROJECT_DIR$/bucket-gRPC-configuration/pom.xml" />
       </list>
     </option>
   </component>

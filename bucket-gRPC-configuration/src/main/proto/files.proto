@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option java_package = "com.cromxt.files.proto";
+option java_multiple_files = true;
+
+
+
+message FileUploadRequest {
+  bytes file = 1;
+}
+enum FileUploadStatus {
+  SUCCESS = 0;
+  ERROR = 1;
+}
+message FileUploadResponse {
+  string fileId = 1;
+  FileUploadStatus status = 2;
+}
+
+service MediaHandlerService {
+  rpc uploadFile (stream FileUploadRequest) returns (FileUploadResponse) {}
+}
