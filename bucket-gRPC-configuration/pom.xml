@@ -26,6 +26,13 @@
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
+            <artifactId>grpc-netty-shaded</artifactId>
+            <version>1.69.0</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.grpc</groupId>
             <artifactId>grpc-protobuf</artifactId>
             <version>1.69.0</version>
         </dependency>
@@ -38,6 +45,12 @@
             <groupId>com.salesforce.servicelibs</groupId>
             <artifactId>reactor-grpc-stub</artifactId>
             <version>${reactor-grpc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>compile</scope>
+            <version>1.18.36</version>
         </dependency>
     </dependencies>
 

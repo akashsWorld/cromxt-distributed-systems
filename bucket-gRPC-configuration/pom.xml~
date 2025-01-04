@@ -24,6 +24,8 @@
             <artifactId>reactor-core</artifactId>
             <version>3.7.1</version>
         </dependency>
+        
+
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-protobuf</artifactId>
@@ -39,6 +41,12 @@
             <artifactId>reactor-grpc-stub</artifactId>
             <version>${reactor-grpc.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>compile</scope>
+            <version>1.18.36</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -51,8 +59,9 @@
         </extensions>
         <plugins>
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
             </plugin>
             <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>

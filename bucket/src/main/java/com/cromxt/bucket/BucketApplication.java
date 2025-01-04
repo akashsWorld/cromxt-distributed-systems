@@ -24,8 +24,8 @@ public class BucketApplication {
 	@Bean
 	public CommandLineRunner commandLineRunner(Environment environment, ApplicationContext context) {
 	    return args -> {
-			String PATH = environment.getProperty("BUCKET_SERVICE.STORAGE_PATH", String.class, "C:/Users/akash/Downloads/root_bucket");
-
+			String PATH = environment.getProperty("BUCKET_CONFIG_STORAGE_PATH", String.class);
+			assert PATH != null;
 			File rootDirectory = new File(PATH);
 			if (!rootDirectory.exists()) {
 				boolean result = rootDirectory.mkdirs();

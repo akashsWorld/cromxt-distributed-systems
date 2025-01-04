@@ -41,35 +41,6 @@ public class FileServiceImpl implements FileService {
         Mono<FileMetaData> fileMetaDataMono = getFileSize(mediaObject)
                 .map(fileSize -> fileMetaDataBuilder.fileSize(fileSize).build());
 
-
-        Mono<MediaObjectDetails> mediaObjectDetailsMono = fileMetaDataMono.flatMap(fileMetaData ->
-                routeService
-                        .getBucketId(fileMetaData)
-                        .flatMap(bucketDetails -> bucketClient
-                                .uploadFile(
-                                        mediaObject.content(),
-                                        bucketDetails
-                                )
-                        )
-        );
-        return mediaObjectDetailsMono.flatMap(mediaObjectDetails ->
-                        mediaRepository
-                                .save(MediaObjects
-                                        .builder()
-                                        .name(mediaObjectDetails.getFileId())
-                                        .size(mediaObjectDetails.getFileSize())
-                                        .bucketId(mediaObjectDetails.getBucketId())
-                                        .fileExtension(mediaObjectDetails.getFileExtension())
-                                        .build()
-                                )
-                )
-                .map(mediaObjectDetails ->
-                        new FileResponse(mediaUrlBuilder(
-                                mediaObjectDetails.getBucketId(),
-                                mediaObjectDetails.getName()
-                        )
-                        )
-                );
     }
 
     private String getFileExtension(String fileName) {

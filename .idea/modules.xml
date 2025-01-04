@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/admin-client.iml" filepath="$PROJECT_DIR$/admin-client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/bucket-gRPC-configuration/bucket-gRPC-configuration.iml" filepath="$PROJECT_DIR$/bucket-gRPC-configuration/bucket-gRPC-configuration.iml" />
       <module fileurl="file://$PROJECT_DIR$/cloud-store/cloud-store.iml" filepath="$PROJECT_DIR$/cloud-store/cloud-store.iml" />
       <module fileurl="file://$PROJECT_DIR$/route-service/route-service.iml" filepath="$PROJECT_DIR$/route-service/route-service.iml" />
     </modules>

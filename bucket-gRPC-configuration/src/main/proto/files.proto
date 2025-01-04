@@ -5,18 +5,30 @@ option java_multiple_files = true;
 
 
 
-message FileUploadGRPCRequest {
-  bytes file = 1;
-}
-enum FileUploadStatus {
+
+enum MediaUploadStatus {
   SUCCESS = 0;
   ERROR = 1;
 }
-message FileUploadResponse {
+enum HLSStatus {
+  ENABLED = 0;
+  DISABLED = 1;
+}
+
+message MediaMetaData {
+  string contentType = 2;
+  HLSStatus hlsStatus = 3;
+
+}
+message MediaUploadRequest {
+  bytes file = 1;
+}
+
+message MediaUploadResponse {
   string fileId = 1;
-  FileUploadStatus status = 2;
+  MediaUploadStatus status = 2;
 }
 
 service MediaHandlerService {
-  rpc uploadFile (stream FileUploadGRPCRequest) returns (FileUploadResponse) {}
+  rpc uploadFile (stream MediaUploadRequest) returns (MediaUploadResponse) {}
 }
