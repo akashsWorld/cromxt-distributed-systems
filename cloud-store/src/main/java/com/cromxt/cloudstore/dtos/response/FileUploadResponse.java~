@@ -1,0 +1,4 @@
+package com.cromxt.cloudstore.dtos.response;
+
+public class FileUploadResponse {
+}

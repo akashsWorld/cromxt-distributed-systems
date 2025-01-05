@@ -1,0 +1,8 @@
+{
+  "buckets": [
+    {
+      "hostName": "localhost",
+      "port": 8543
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/bucket-gRPC-configuration/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/bucket-gRPC-configuration/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/bucket-gateway/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/bucket-server/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/bucket/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cloud-store/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common-file-modules/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common-file-modules/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/route-service/src/main/java" charset="UTF-8" />
+  </component>
+</project>

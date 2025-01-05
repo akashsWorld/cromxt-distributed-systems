@@ -1,0 +1,12 @@
+{
+    "version": "1.0.0",
+    "bucket-server":{
+        "baseURL": "http://localhost:3000",
+        "admin":{
+            "get-all-buckets": {
+                "url": "/api/v1/admin/",
+                "method": "GET"
+            }
+        }
+    }
+}

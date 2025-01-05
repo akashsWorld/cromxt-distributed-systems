@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="bucket" />
+        <module name="common-file-modules" />
+        <module name="route-service" />
+        <module name="bucket-server" />
+        <module name="bucket-gateway" />
+        <module name="cloud-store" />
+        <module name="bucket-gRPC-configuration" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="bucket" options="-parameters" />
+      <module name="bucket-gateway" options="-parameters" />
+      <module name="bucket-server" options="-parameters" />
+      <module name="cloud-store" options="-parameters" />
+      <module name="route-service" options="-parameters" />
+    </option>
+  </component>
+</project>
