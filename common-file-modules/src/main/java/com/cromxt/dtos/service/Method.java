@@ -1,4 +1,4 @@
-package com.cromxt.dtos.client.requests;
+package com.cromxt.dtos.service;
 
 public enum Method {
     ADD,

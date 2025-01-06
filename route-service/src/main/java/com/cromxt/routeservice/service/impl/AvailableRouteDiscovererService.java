@@ -1,7 +1,7 @@
 package com.cromxt.routeservice.service.impl;
 
 import com.cromxt.dtos.service.BucketInformation;
-import com.cromxt.dtos.client.requests.BucketsUpdateRequest;
+import com.cromxt.dtos.service.BucketsUpdateRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

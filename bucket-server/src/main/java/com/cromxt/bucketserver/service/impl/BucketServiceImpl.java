@@ -9,6 +9,9 @@ import com.cromxt.bucketserver.service.BucketService;
 import com.cromxt.dtos.client.requests.NewBucketRequest;
 import com.cromxt.dtos.client.response.BucketResponseDTO;
 import com.cromxt.dtos.client.response.derived.NewBucketResponse;
+import com.cromxt.dtos.service.BucketObject;
+import com.cromxt.dtos.service.BucketsUpdateRequest;
+import com.cromxt.dtos.service.Method;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
@@ -32,6 +35,7 @@ public class BucketServiceImpl implements BucketService {
 
     private final BucketsRepository bucketsRepository;
     private final ServerClient serverClient;
+    private final UpdateBucketKafkaProducer updateBucketKafkaProducer;
 
     @Override
     public Flux<BucketResponseDTO> findAllBuckets() {
@@ -56,7 +60,14 @@ public class BucketServiceImpl implements BucketService {
         Mono<Buckets> savedBucket = bucketsRepository.save(Buckets.builder()
                 .hostname(newBucketRequest.getHostname())
                 .port(newBucketRequest.getPort())
-                .build());
+                .build())
+                .onErrorResume(Mono::error)
+                .flatMap(bucket-> updateBucketKafkaProducer.updateBucket(
+                        new BucketsUpdateRequest(
+                                Method.ADD,
+                                List.of(new BucketObject(bucket.getId(),bucket.getHostname(),bucket.getPort()))
+                        )
+                ).then(Mono.just(bucket)));
         return savedBucket.flatMap(bucket->{
             String bucketId = bucket.getId();
             return serverClient
@@ -73,8 +84,12 @@ public class BucketServiceImpl implements BucketService {
     public Mono<Void> deleteBucketById(String bucketId) {
         return bucketsRepository.findById(bucketId)
                 .switchIfEmpty(Mono.error(new InvalidBucketDetails("Bucket not found")))
-                .flatMap(bucketsRepository::delete)
-                .then();
+                .flatMap(bucket->bucketsRepository.delete(bucket).then(updateBucketKafkaProducer.updateBucket(
+                        new BucketsUpdateRequest(
+                                Method.DELETE,
+                                List.of(new BucketObject(bucketId,bucket.getHostname(),bucket.getPort()))
+                        )
+                )));
     }
 
     @Override
@@ -89,7 +104,12 @@ public class BucketServiceImpl implements BucketService {
                       bucket.setPort(newBucketRequest.getPort());
                   }
                   return bucketsRepository.save(bucket);
-                }).then();
+                })
+                .flatMap(buckets -> updateBucketKafkaProducer.updateBucket(new BucketsUpdateRequest(
+                        Method.UPDATE,
+                        List.of(new BucketObject(buckets.getId(),buckets.getHostname(),buckets.getPort()))
+                )))
+                .then();
     }
 
 
@@ -102,7 +122,12 @@ public class BucketServiceImpl implements BucketService {
 
     @Override
     public Mono<Void> deleteAllBuckets() {
-        return bucketsRepository.deleteAll();
+        return bucketsRepository.findAll()
+                .map(buckets -> new BucketObject(buckets.getId(),buckets.getHostname(),buckets.getPort()))
+                .collectList()
+                .flatMap(bucketObjects -> bucketsRepository.deleteAll()
+                        .then(updateBucketKafkaProducer.updateBucket(new BucketsUpdateRequest(Method.DELETE,bucketObjects)))
+                );
     }
 
 
@@ -139,6 +164,7 @@ public class BucketServiceImpl implements BucketService {
                     }
                 });
     }
+
 
 
 }

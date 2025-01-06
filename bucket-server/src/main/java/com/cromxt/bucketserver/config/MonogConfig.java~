@@ -1,0 +1,4 @@
+package com.cromxt.bucketserver.config;
+
+public class MonogConfig {
+}
