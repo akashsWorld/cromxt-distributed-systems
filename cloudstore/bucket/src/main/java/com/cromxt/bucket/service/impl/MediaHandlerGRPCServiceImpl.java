@@ -25,9 +25,12 @@ public class MediaHandlerGRPCServiceImpl extends ReactorMediaHandlerServiceGrpc.
     @Override
     public Mono<MediaUploadResponse> uploadFile(Flux<MediaUploadRequest> request) {
 
-        MediaMetaData metaData = MediaHeadersKey.MEDIA_META_DATA.getContextKey().get(Context.current());
+        MediaMetaData mediaMetaData = MediaHeadersKey.MEDIA_META_DATA.getContextKey().get(Context.current());
 
-        Path absoluteResourcesPath = Paths.get(fileService.createFilePath(metaData.getContentType()));
+        System.out.println(mediaMetaData.getContentType());
+        
+
+        Path absoluteResourcesPath = Paths.get(fileService.createFilePath(mediaMetaData.getContentType()));
 
         System.out.println(absoluteResourcesPath.getFileName());
         return Mono.create(sink -> {

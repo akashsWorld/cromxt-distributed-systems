@@ -1,84 +1,98 @@
 package com.cromxt.cloudstore.clients.impl;
 
+import org.springframework.core.io.buffer.DataBuffer;
+
 import com.cromxt.cloudstore.clients.BucketClient;
 import com.cromxt.cloudstore.dtos.MediaObjectMetadata;
 import com.cromxt.cloudstore.dtos.response.MediaObjectDetails;
 import com.cromxt.dtos.client.response.BucketAddress;
+import com.cromxt.grpc.MediaHeadersKey;
 import com.cromxt.proto.files.MediaHandlerServiceGrpc;
+import com.cromxt.proto.files.MediaMetaData;
 import com.cromxt.proto.files.MediaUploadRequest;
 import com.cromxt.proto.files.ReactorMediaHandlerServiceGrpc;
 import com.google.protobuf.ByteString;
+
+import io.grpc.Channel;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Metadata;
 import io.grpc.stub.MetadataUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.buffer.DataBuffer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
 
 @Slf4j
 public class BucketGRPCClient implements BucketClient {
 
-    @Override
-    public Mono<MediaObjectDetails> uploadFile(Flux<DataBuffer> fileData,
-                                               MediaObjectMetadata mediaObjectDetails,
-                                               BucketAddress bucketAddress) {
-        ReactorMediaHandlerServiceGrpc.ReactorMediaHandlerServiceStub reactorMediaHandlerServiceStub =
-                getReactorMediaHandlerServiceStub(
-                        bucketAddress,
-                        generateHeaders(bucketAddress)
-                );
+        @Override
+        public Mono<MediaObjectDetails> uploadFile(Flux<DataBuffer> fileData,
+                        MediaObjectMetadata mediaObjectMetadata,
+                        BucketAddress bucketAddress) {
 
-        Flux<MediaUploadRequest> data = fileData
-                .map(dataBuffer -> {
-                            byte[] bytes = new byte[dataBuffer.readableByteCount()];
-                            dataBuffer.read(bytes);
-                            return MediaUploadRequest
-                                    .newBuilder()
-                                    .setFile(ByteString.copyFrom(bytes))
-                                    .build();
-                        }
-                );
-        return data.as(reactorMediaHandlerServiceStub.withInterceptors(
-//                TODO:Add the interceptor for the grpc call.
-                )::uploadFile)
-                .flatMap(
-                        fileUploadResponse ->
-//                                TODO: Handle the response.
-                                Mono.empty()
-                );
-    }
+                Channel channel = createManagedChannel(mediaObjectMetadata, bucketAddress);
 
-    private MediaHandlerServiceGrpc.MediaHandlerServiceStub getMediaHandlerServiceStub(BucketAddress bucketAddress) {
-        ManagedChannel channel = ManagedChannelBuilder.forAddress(
-                        bucketAddress.url(),
-                        bucketAddress.port()
-                )
-                .usePlaintext()
-                .build();
-        return MediaHandlerServiceGrpc.newStub(channel);
-    }
+                Metadata headers = generateHeaders(mediaObjectMetadata);
+                // Use of reactive implementation instead of blocking.
 
+                ReactorMediaHandlerServiceGrpc.ReactorMediaHandlerServiceStub reactorMediaHandlerServiceStub = ReactorMediaHandlerServiceGrpc
+                                .newReactorStub(channel);
 
-    private Metadata generateHeaders(BucketAddress bucketAddress) {
-        return null;
-    }
-//    Use of reactive implementation instead of blocking.
-    private ReactorMediaHandlerServiceGrpc.ReactorMediaHandlerServiceStub getReactorMediaHandlerServiceStub(
-            BucketAddress bucketAddress,
-            Metadata headers
-    ) {
-        ManagedChannel managedChannel = ManagedChannelBuilder.forAddress(
-                        bucketAddress.url(),
-                        bucketAddress.port()
-                )
-                .intercept(MetadataUtils.newAttachHeadersInterceptor(headers))
-                .usePlaintext()
-                .build();
+                Flux<MediaUploadRequest> data = fileData
+                                .map(dataBuffer -> {
+                                        byte[] bytes = new byte[dataBuffer.readableByteCount()];
+                                        dataBuffer.read(bytes);
+                                        return MediaUploadRequest
+                                                        .newBuilder()
+                                                        .setFile(ByteString.copyFrom(bytes))
+                                                        .build();
+                                });
+                return data.as(reactorMediaHandlerServiceStub.withInterceptors(
+                                MetadataUtils.newAttachHeadersInterceptor(headers))::uploadFile)
+                                .flatMap(fileUploadResponse -> {
+                                        System.out.println(fileUploadResponse.getStatus());
+                                        return Mono.empty();
+                                });
+        }
 
-//        Channel interceptedChannel = ClientInterceptors.intercept(managedChannel, )
-        return ReactorMediaHandlerServiceGrpc.newReactorStub(managedChannel);
-    }
+        private Channel createManagedChannel(
+                        MediaObjectMetadata mediaObjectMetaData,
+                        BucketAddress bucketAddress) {
+
+                ManagedChannel managedChannel = ManagedChannelBuilder.forAddress(
+                                bucketAddress.url(),
+                                bucketAddress.port())
+                                .usePlaintext()
+                                .build();
+
+                return managedChannel;
+        }
+
+        private Metadata generateHeaders(MediaObjectMetadata mediaObjectMetadata) {
+
+                MediaMetaData mediaMetaData = MediaMetaData.newBuilder()
+                                .setContentType(mediaObjectMetadata.getContentType())
+                                .setHlsStatus(mediaObjectMetadata.getHlsStatus())
+                                .build();
+
+                Metadata metadata = new Metadata();
+
+                Metadata.Key<byte[]> metaDataKey = (Metadata.Key<byte[]>) MediaHeadersKey.MEDIA_META_DATA
+                                .getMetaDataKey();
+                metadata.put(metaDataKey, mediaMetaData.toByteArray());
+                return metadata;
+        }
+
+        private MediaHandlerServiceGrpc.MediaHandlerServiceStub getMediaHandlerServiceStub(
+                        BucketAddress bucketAddress) {
+
+                // To use reactive types this Stub is not used. bu it can also used.
+                ManagedChannel channel = ManagedChannelBuilder.forAddress(
+                                bucketAddress.url(),
+                                bucketAddress.port())
+                                .usePlaintext()
+                                .build();
+                return MediaHandlerServiceGrpc.newStub(channel);
+        }
+
 }

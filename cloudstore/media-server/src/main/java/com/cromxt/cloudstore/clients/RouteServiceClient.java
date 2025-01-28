@@ -1,7 +1,7 @@
 package com.cromxt.cloudstore.clients;
 
 
-import com.cromxt.dtos.client.requests.FileMetaData;
+import com.cromxt.dtos.client.requests.MediaMetadata;
 import com.cromxt.dtos.client.response.BucketAddress;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatusCode;
@@ -22,7 +22,7 @@ public class RouteServiceClient {
                 .baseUrl(baseUrl)
                 .build();
     }
-    public Mono<BucketAddress> getBucketId(FileMetaData fileMetaData) {
+    public Mono<BucketAddress> getBucketAddress(MediaMetadata fileMetaData) {
         return webClient
                 .post()
                 .uri("/api/v1/routing/get-bucket-id")

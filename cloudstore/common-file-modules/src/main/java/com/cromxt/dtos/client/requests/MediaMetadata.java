@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @Data
-public class FileMetaData {
+public class MediaMetadata {
     Long fileSize;
     String fileExtension;
 }

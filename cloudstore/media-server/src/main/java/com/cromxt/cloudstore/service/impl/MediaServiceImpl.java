@@ -4,13 +4,13 @@ package com.cromxt.cloudstore.service.impl;
 import com.cromxt.cloudstore.clients.BucketClient;
 import com.cromxt.cloudstore.clients.RouteServiceClient;
 import com.cromxt.cloudstore.dtos.MediaObjectMetadata;
-import com.cromxt.cloudstore.dtos.requests.FileUploadRequest;
+import com.cromxt.cloudstore.dtos.requests.MediaUploadRequest;
 import com.cromxt.cloudstore.dtos.response.FileResponse;
 import com.cromxt.cloudstore.dtos.response.MediaObjectDetails;
 import com.cromxt.cloudstore.entity.MediaObjects;
 import com.cromxt.cloudstore.repository.MediaRepository;
-import com.cromxt.cloudstore.service.FileService;
-import com.cromxt.dtos.client.requests.FileMetaData;
+import com.cromxt.cloudstore.service.MediaService;
+import com.cromxt.dtos.client.requests.MediaMetadata;
 import com.cromxt.dtos.client.response.BucketAddress;
 import com.cromxt.proto.files.HLSStatus;
 import org.springframework.http.codec.multipart.FilePart;
@@ -18,13 +18,13 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
-public class FileServiceImpl implements FileService {
+public class MediaServiceImpl implements MediaService {
 
     private final BucketClient bucketClient;
     private final RouteServiceClient routeService;
     private final MediaRepository mediaRepository;
 
-    public FileServiceImpl(BucketClient bucketClient,
+    public MediaServiceImpl(BucketClient bucketClient,
                            RouteServiceClient routeService,
                            MediaRepository mediaRepository) {
         this.bucketClient = bucketClient;
@@ -33,15 +33,19 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public Mono<FileResponse> saveFile(FileUploadRequest fileUploadRequest) {
-        FilePart mediaObject = fileUploadRequest.mediaObject();
+    public Mono<FileResponse> saveFile(MediaUploadRequest fileUploadRequest) {
+        FilePart mediaObject = fileUploadRequest.media();
         String fileExtension = getFileExtension(mediaObject.filename());
 
         Mono<Long> fileSize = getFileSize(mediaObject);
 
         return fileSize.flatMap(totalFileSize -> {
-            FileMetaData fileMetaData = new FileMetaData(totalFileSize, fileExtension);
-            Mono<BucketAddress> bucketDetails = routeService.getBucketId(fileMetaData);
+            MediaMetadata fileMetaData = new MediaMetadata(totalFileSize, fileExtension);
+            // TODO: Enable the route service after later.
+
+            // Mono<BucketAddress> bucketDetails = routeService.getBucketAddress(fileMetaData);
+
+            Mono<BucketAddress> bucketDetails = Mono.just(new BucketAddress("localhost", 9090));
 
 
             return bucketDetails.flatMap(bucket -> {
@@ -63,7 +67,6 @@ public class FileServiceImpl implements FileService {
                             .map(savedObject -> new FileResponse(
                                     accessUrlBuilder(savedObject.getBucketId(), savedObject.getId())
                             ));
-
                 });
 
             });

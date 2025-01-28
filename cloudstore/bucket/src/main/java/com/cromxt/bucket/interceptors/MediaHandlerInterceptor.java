@@ -13,12 +13,12 @@ public class MediaHandlerInterceptor implements ServerInterceptor {
                                                                  Metadata headers,
                                                                  ServerCallHandler<ReqT, RespT> next) {
         MediaMetaData metaData = null;
-        Metadata.Key<?> fileExtensionKey = MEDIA_META_DATA.getMetaDataKey();
+        Metadata.Key<?> mediaMetaDatakey = MEDIA_META_DATA.getMetaDataKey();
 
-        if (headers.containsKey(fileExtensionKey)) {
+        if (headers.containsKey(mediaMetaDatakey)) {
             {
                 try {
-                    byte[] metaDataBytes = headers.get((Metadata.Key<byte[]>) fileExtensionKey);
+                    byte[] metaDataBytes = headers.get((Metadata.Key<byte[]>) mediaMetaDatakey);
                     metaData = MediaMetaData.parseFrom(metaDataBytes);
                     Context currentContext = Context.current().withValue(MEDIA_META_DATA.getContextKey(), metaData);
                     return Contexts.interceptCall(currentContext, call, headers, next);

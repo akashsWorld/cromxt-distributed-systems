@@ -1,13 +1,12 @@
 package com.cromxt.bucket.service.impl;
 
-import com.cromxt.bucket.service.FileService;
+import java.io.File;
+import java.util.UUID;
+
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.UUID;
+import com.cromxt.bucket.service.FileService;
 
 @Service
 public class FileServiceImpl implements FileService {
@@ -17,7 +16,6 @@ public class FileServiceImpl implements FileService {
     public FileServiceImpl(Environment environment) {
         this.PATH = environment.getProperty("BUCKET_CONFIG_STORAGE_PATH", String.class);
         assert PATH != null;
-
     }
 
     @Override

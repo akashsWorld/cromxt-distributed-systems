@@ -9,7 +9,11 @@ import lombok.Getter;
 
 public class MediaHeadersKey {
 
-    public static final HeaderKeyValue<MediaMetaData> MEDIA_META_DATA = new HeaderKeyValue<>("media-details", HeaderType.BINARY);
+    public static final HeaderKeyValue<MediaMetaData> MEDIA_META_DATA = new HeaderKeyValue<>("media-meta-data", HeaderType.BINARY);
+
+
+    public static final Metadata.Key<byte[]> MEDIA_META_DATA_KEY = Metadata.Key.of(String.format("%s-bin", "media-meta-data"), Metadata.BINARY_BYTE_MARSHALLER);
+
 
     @Getter
     public static class HeaderKeyValue <T>{
