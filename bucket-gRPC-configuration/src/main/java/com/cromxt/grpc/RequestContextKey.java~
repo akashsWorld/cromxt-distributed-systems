@@ -1,8 +1,0 @@
-package com.cromxt.grpc;
-
-
-import io.grpc.Metadata;
-
-public class MediaHeadersKey {
-    public static final Metadata.Key<byte[]> MEDIA_META_DATA = Metadata.BINARY_BYTE_MARSHALLER("media-meta-data");
-}
