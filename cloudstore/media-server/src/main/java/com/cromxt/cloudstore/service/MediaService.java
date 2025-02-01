@@ -5,5 +5,5 @@ import com.cromxt.cloudstore.dtos.response.FileResponse;
 import reactor.core.publisher.Mono;
 
 public interface MediaService {
-    Mono<FileResponse> saveFile(MediaUploadRequest fileUploadRequest);
+    Mono<FileResponse> saveFile(MediaUploadRequest fileUploadRequest,String fileName, Boolean hlsStatus);
 }

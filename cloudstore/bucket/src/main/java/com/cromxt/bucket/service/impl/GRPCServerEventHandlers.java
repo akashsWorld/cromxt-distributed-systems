@@ -16,15 +16,17 @@ import java.io.IOException;
 public class GRPCServerEventHandlers {
 
     private final Server server;
+    private final ApplicationHostNetworkFinder network;
 
-    public GRPCServerEventHandlers(@Qualifier("mediaHandlerGrpcServer") Server server) {
+    public GRPCServerEventHandlers(@Qualifier("mediaHandlerGrpcServer") Server server,ApplicationHostNetworkFinder hostNetwork) {
         this.server = server;
+        this.network = hostNetwork;
     }
 
     @EventListener(ApplicationReadyEvent.class)
     public void onStartApplication () throws IOException {
         server.start();
-        log.info("Bucket gRPC server started successfully on Port {}", server.getPort());
+        log.info("Bucket gRPC server successfully started at {} on Port {}", network.getApplicationHostname(),server.getPort());
     }
 
     @EventListener(value = ContextClosedEvent.class)

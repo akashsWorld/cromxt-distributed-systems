@@ -80,14 +80,10 @@ public class MediaServiceImpl implements MediaService {
     }
 
     private String getFileExtension(String fileName) {
-            String fileExtension = fileName
+        return fileName
                 .substring(fileName
-                        .lastIndexOf(".")+1
+                        .lastIndexOf(".")
                 );
-            if(fileExtension.isEmpty()){
-                throw new RuntimeException("File extension is empty");
-            }
-            return fileExtension;
     }
 
     private Mono<Long> getFileSize(FilePart mediaObject) {

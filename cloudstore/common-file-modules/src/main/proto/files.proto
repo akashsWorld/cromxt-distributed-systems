@@ -10,14 +10,12 @@ enum MediaUploadStatus {
   SUCCESS = 0;
   ERROR = 1;
 }
-enum HLSStatus {
-  ENABLED = 0;
-  DISABLED = 1;
-}
+
 
 message MediaMetaData {
+  bool hlsStatus = 1;
   string contentType = 2;
-  HLSStatus hlsStatus = 3;
+  string fileName = 3;
 
 }
 message MediaUploadRequest {

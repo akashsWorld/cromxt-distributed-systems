@@ -1,7 +1,10 @@
 package com.cromxt.bucket.service;
 
 
+import static com.cromxt.bucket.service.impl.FileServiceImpl.FileDetails;
+import com.cromxt.proto.files.MediaMetaData;
+
 public interface FileService {
-    String createFilePath(String contentType);
+    FileDetails getFileDetails(MediaMetaData contentType);
 }
 

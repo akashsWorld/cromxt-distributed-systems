@@ -5,10 +5,7 @@ import com.cromxt.cloudstore.dtos.response.FileResponse;
 import com.cromxt.cloudstore.service.MediaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -20,8 +17,10 @@ public class MediaController {
 
     @PostMapping
    public Mono<ResponseEntity<FileResponse>> uploadFile(
-           @ModelAttribute MediaUploadRequest mediaUploadRequest
+           @ModelAttribute MediaUploadRequest mediaUploadRequest,
+           @RequestParam (name= "hlsStatus", required = false, defaultValue = "false") boolean hlsStatus,
+           @RequestParam(name = "fileName",required = false, defaultValue = "cloud-store-file") String fileName
     ) {
-        return mediaService.saveFile(mediaUploadRequest).map(ResponseEntity::ok);
+        return mediaService.saveFile(mediaUploadRequest, fileName, hlsStatus).map(ResponseEntity::ok);
     }
 }
