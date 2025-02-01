@@ -24,7 +24,7 @@ public class GRPCServerEventHandlers {
     @EventListener(ApplicationReadyEvent.class)
     public void onStartApplication () throws IOException {
         server.start();
-        log.info("Bucket started successfully on Port {}", server.getPort());
+        log.info("Bucket gRPC server started successfully on Port {}", server.getPort());
     }
 
     @EventListener(value = ContextClosedEvent.class)

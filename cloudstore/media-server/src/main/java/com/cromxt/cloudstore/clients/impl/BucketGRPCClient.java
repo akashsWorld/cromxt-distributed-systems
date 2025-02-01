@@ -1,5 +1,7 @@
 package com.cromxt.cloudstore.clients.impl;
 
+import io.grpc.*;
+import io.grpc.netty.NettyChannelBuilder;
 import org.springframework.core.io.buffer.DataBuffer;
 
 import com.cromxt.cloudstore.clients.BucketClient;
@@ -13,10 +15,6 @@ import com.cromxt.proto.files.MediaUploadRequest;
 import com.cromxt.proto.files.ReactorMediaHandlerServiceGrpc;
 import com.google.protobuf.ByteString;
 
-import io.grpc.Channel;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
-import io.grpc.Metadata;
 import io.grpc.stub.MetadataUtils;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -30,13 +28,13 @@ public class BucketGRPCClient implements BucketClient {
                         MediaObjectMetadata mediaObjectMetadata,
                         BucketAddress bucketAddress) {
 
-                Channel channel = createManagedChannel(mediaObjectMetadata, bucketAddress);
+                Channel channel = createManagedChannel(bucketAddress);
 
                 Metadata headers = generateHeaders(mediaObjectMetadata);
                 // Use of reactive implementation instead of blocking.
 
                 ReactorMediaHandlerServiceGrpc.ReactorMediaHandlerServiceStub reactorMediaHandlerServiceStub = ReactorMediaHandlerServiceGrpc
-                                .newReactorStub(channel);
+                        .newReactorStub(channel);
 
                 Flux<MediaUploadRequest> data = fileData
                                 .map(dataBuffer -> {
@@ -55,17 +53,12 @@ public class BucketGRPCClient implements BucketClient {
                                 });
         }
 
-        private Channel createManagedChannel(
-                        MediaObjectMetadata mediaObjectMetaData,
-                        BucketAddress bucketAddress) {
-
-                ManagedChannel managedChannel = ManagedChannelBuilder.forAddress(
-                                bucketAddress.url(),
-                                bucketAddress.port())
-                                .usePlaintext()
-                                .build();
-
-                return managedChannel;
+        private Channel createManagedChannel(BucketAddress bucketAddress) {
+            return NettyChannelBuilder
+                    .forAddress(bucketAddress.url(), bucketAddress.port())
+                    .usePlaintext()
+                    .flowControlWindow(NettyChannelBuilder.DEFAULT_FLOW_CONTROL_WINDOW)
+                    .build();
         }
 
         private Metadata generateHeaders(MediaObjectMetadata mediaObjectMetadata) {

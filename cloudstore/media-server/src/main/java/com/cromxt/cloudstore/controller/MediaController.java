@@ -1,15 +1,14 @@
 package com.cromxt.cloudstore.controller;
 
 import com.cromxt.cloudstore.dtos.requests.MediaUploadRequest;
+import com.cromxt.cloudstore.dtos.response.FileResponse;
 import com.cromxt.cloudstore.service.MediaService;
-
 import lombok.RequiredArgsConstructor;
-
-import javax.print.attribute.standard.Media;
-
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.codec.multipart.FilePart;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -18,12 +17,11 @@ import reactor.core.publisher.Mono;
 public class MediaController {
 
     private final MediaService mediaService;
+
     @PostMapping
-    public Mono<ResponseEntity<Void>> uploadFile(
-        @RequestPart("media") FilePart media
+   public Mono<ResponseEntity<FileResponse>> uploadFile(
+           @ModelAttribute MediaUploadRequest mediaUploadRequest
     ) {
-        
-        System.out.println(media.filename());
-        return Mono.just(ResponseEntity.ok().build());
+        return mediaService.saveFile(mediaUploadRequest).map(ResponseEntity::ok);
     }
 }

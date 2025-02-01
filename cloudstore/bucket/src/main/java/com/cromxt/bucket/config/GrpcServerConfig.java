@@ -23,6 +23,7 @@ public class GrpcServerConfig {
 
         Integer grpcPort = applicationHostNetworkFinder.getApplicationPort();
         String grpcHost = applicationHostNetworkFinder.getApplicationHostname();
+        System.out.println(grpcHost);
         assert grpcPort != null;
         return  NettyServerBuilder
                 .forAddress(new InetSocketAddress(grpcHost,grpcPort))

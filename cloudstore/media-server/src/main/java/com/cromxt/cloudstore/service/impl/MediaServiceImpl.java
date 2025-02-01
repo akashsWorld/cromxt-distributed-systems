@@ -45,12 +45,13 @@ public class MediaServiceImpl implements MediaService {
 
             // Mono<BucketAddress> bucketDetails = routeService.getBucketAddress(fileMetaData);
 
-            Mono<BucketAddress> bucketDetails = Mono.just(new BucketAddress("localhost", 9090));
+            Mono<BucketAddress> bucketDetails = Mono.just(new BucketAddress("192.168.0.146", 9090));
 
 
             return bucketDetails.flatMap(bucket -> {
                 MediaObjectMetadata mediaObjectMetadata =
                         MediaObjectMetadata.builder()
+                                .contentType(fileExtension)
                                 .hlsStatus(HLSStatus.ENABLED)
                                 .build();
                 Mono<MediaObjectDetails> mediaObjectDetailsMono = bucketClient.uploadFile(mediaObject.content(), mediaObjectMetadata, bucket);

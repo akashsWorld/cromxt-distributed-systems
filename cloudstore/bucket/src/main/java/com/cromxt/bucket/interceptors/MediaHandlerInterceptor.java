@@ -14,6 +14,7 @@ public class MediaHandlerInterceptor implements ServerInterceptor {
                                                                  ServerCallHandler<ReqT, RespT> next) {
         MediaMetaData metaData = null;
         Metadata.Key<?> mediaMetaDatakey = MEDIA_META_DATA.getMetaDataKey();
+        System.out.println("mediaMetaDatakey" + mediaMetaDatakey);
 
         if (headers.containsKey(mediaMetaDatakey)) {
             {
