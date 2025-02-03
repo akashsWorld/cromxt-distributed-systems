@@ -16,25 +16,26 @@ import java.io.File;
 @Slf4j
 public class BucketApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(BucketApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(BucketApplication.class, args);
+    }
 
 
-	@Bean
-	public CommandLineRunner commandLineRunner(Environment environment, ApplicationContext context) {
-	    return args -> {
-			String PATH = environment.getProperty("BUCKET_CONFIG_STORAGE_PATH", String.class);
-			assert PATH != null;
-			File rootDirectory = new File(PATH);
-			if (!rootDirectory.exists()) {
-				boolean result = rootDirectory.mkdirs();
-				if (!result) {
-					log.error("Unable to create directory");
-					SpringApplication.exit(context, () -> 1);
-				}
-			}
-	    };
-	}
+    @Bean
+    public CommandLineRunner commandLineRunner(Environment environment, ApplicationContext context) {
+        return args -> {
+            String PATH = environment.getProperty("BUCKET_CONFIG_STORAGE_PATH", String.class);
+            assert PATH != null;
+            File rootDirectory = new File(PATH);
+            if (!rootDirectory.exists()) {
+                boolean result = rootDirectory.mkdirs();
+                if (!result) {
+                    log.error("Unable to create directory");
+                    SpringApplication.exit(context, () -> 1);
+                }
+            }
+
+        };
+    }
 
 }

@@ -1,5 +1,6 @@
 package com.cromxt.bucket.service.impl;
 
+import com.cromxt.bucket.exception.MediaOperationException;
 import com.cromxt.bucket.service.FileService;
 import com.cromxt.grpc.MediaHeadersKey;
 import com.cromxt.proto.files.*;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+
 import static com.cromxt.bucket.service.impl.FileServiceImpl.FileDetails;
 
 import java.io.FileOutputStream;
@@ -29,21 +31,41 @@ public class MediaHandlerGRPCServiceImpl extends ReactorMediaHandlerServiceGrpc.
     @Override
     public Mono<MediaUploadResponse> uploadFile(Flux<MediaUploadRequest> request) {
         return Mono.create(sink -> {
+                            MediaMetaData mediaMetaData = MediaHeadersKey.MEDIA_META_DATA.getContextKey().get(Context.current());
 
-                    MediaMetaData mediaMetaData = MediaHeadersKey.MEDIA_META_DATA.getContextKey().get(Context.current());
-                    FileDetails fileDetails = fileService.getFileDetails(mediaMetaData);
-                    System.out.println(fileDetails);
+                            FileDetails fileDetails = null;
+                            try {
+                                fileDetails = fileService.getFileDetails(mediaMetaData);
+                            } catch (MediaOperationException e) {
+                                sink.error(e);
+                                return;
+                            }
+                            FileOutputStream fileOutputStream = null;
 
-                    try (FileOutputStream fileOutputStream = new FileOutputStream(fileDetails.getAbsolutePath())) {
-                                request.subscribeOn(Schedulers.boundedElastic()).subscribe(fileUploadRequest -> {
-                                    System.out.println("Writing data on the disk.");
+                            try {
+
+                                fileOutputStream = new FileOutputStream(fileDetails.getAbsolutePath());
+                                FileOutputStream finalFileOutputStream = fileOutputStream; // effectively final variable for use in lambda
+                                request.subscribeOn(Schedulers.boundedElastic()).doOnNext(fileUploadRequest -> {
+
                                     try {
-                                        fileOutputStream.write(fileUploadRequest.getFile().toByteArray());
+                                        finalFileOutputStream.write(fileUploadRequest.getFile().toByteArray());
                                     } catch (IOException e) {
+                                        log.error(e.getMessage());
+                                        e.printStackTrace(System.err);
                                         log.error("Unable to write data on disk.");
                                         sink.error(e);
                                     }
-                                });
+                                }).doOnComplete(() -> {
+                                    try {
+                                        if (finalFileOutputStream != null) {
+                                            finalFileOutputStream.close();
+                                        }
+                                    } catch (IOException e) {
+                                        log.error("Unable to close file stream.");
+                                        sink.error(e);
+                                    }
+                                }).subscribe();
                             } catch (IOException e) {
                                 log.error("Unable to create file stream.");
                                 sink.error(e);
@@ -56,7 +78,6 @@ public class MediaHandlerGRPCServiceImpl extends ReactorMediaHandlerServiceGrpc.
                         .setFileId("some-long-file-id")
                         .setStatus(MediaUploadStatus.SUCCESS).build());
     }
-
 
 
 }
