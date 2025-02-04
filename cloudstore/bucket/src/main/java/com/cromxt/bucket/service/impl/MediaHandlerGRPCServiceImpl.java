@@ -12,12 +12,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import static com.cromxt.bucket.service.impl.FileServiceImpl.FileDetails;
-
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+
+import static com.cromxt.bucket.service.impl.FileServiceImpl.FileDetails;
 
 
 @Service
@@ -30,53 +28,38 @@ public class MediaHandlerGRPCServiceImpl extends ReactorMediaHandlerServiceGrpc.
     //    Handle the upload request in reactive way(Using reactive types Mono and Flux.)
     @Override
     public Mono<MediaUploadResponse> uploadFile(Flux<MediaUploadRequest> request) {
+        MediaMetaData mediaMetaData = MediaHeadersKey.MEDIA_META_DATA.getContextKey().get(Context.current());
+
+        FileDetails fileDetails = fileService.getFileDetails(mediaMetaData);
+
         return Mono.create(sink -> {
-                            MediaMetaData mediaMetaData = MediaHeadersKey.MEDIA_META_DATA.getContextKey().get(Context.current());
-
-                            FileDetails fileDetails = null;
+            try {
+                FileOutputStream fileOutputStream = new FileOutputStream(fileDetails.getAbsolutePath());
+                request.subscribeOn(Schedulers.boundedElastic())
+                        .doOnNext(chunkData -> {
                             try {
-                                fileDetails = fileService.getFileDetails(mediaMetaData);
-                            } catch (MediaOperationException e) {
-                                sink.error(e);
-                                return;
+                                fileOutputStream.write(chunkData.getFile().toByteArray());
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
                             }
-                            FileOutputStream fileOutputStream = null;
-
+                        })
+                        .doOnComplete(() -> {
                             try {
-
-                                fileOutputStream = new FileOutputStream(fileDetails.getAbsolutePath());
-                                FileOutputStream finalFileOutputStream = fileOutputStream; // effectively final variable for use in lambda
-                                request.subscribeOn(Schedulers.boundedElastic()).doOnNext(fileUploadRequest -> {
-
-                                    try {
-                                        finalFileOutputStream.write(fileUploadRequest.getFile().toByteArray());
-                                    } catch (IOException e) {
-                                        log.error(e.getMessage());
-                                        e.printStackTrace(System.err);
-                                        log.error("Unable to write data on disk.");
-                                        sink.error(e);
-                                    }
-                                }).doOnComplete(() -> {
-                                    try {
-                                        if (finalFileOutputStream != null) {
-                                            finalFileOutputStream.close();
-                                        }
-                                    } catch (IOException e) {
-                                        log.error("Unable to close file stream.");
-                                        sink.error(e);
-                                    }
-                                }).subscribe();
+                                fileOutputStream.close();
+                                sink.success(MediaUploadResponse.newBuilder()
+                                        .setStatus(MediaUploadStatus.SUCCESS)
+                                        .setFileId("long-file-id")
+                                        .build());
                             } catch (IOException e) {
-                                log.error("Unable to create file stream.");
                                 sink.error(e);
                             }
-                            sink.success();
-                        }
-                )
-                .onErrorResume(e -> Mono.just(MediaUploadResponse.newBuilder().setStatus(MediaUploadStatus.ERROR).build()))
-                .thenReturn(MediaUploadResponse.newBuilder()
-                        .setFileId("some-long-file-id")
-                        .setStatus(MediaUploadStatus.SUCCESS).build());
+                        })
+                        .doOnError(sink::error)
+                        .subscribe();
+            } catch (IOException e) {
+                sink.error(e);
+            }
+        });
     }
 
 
