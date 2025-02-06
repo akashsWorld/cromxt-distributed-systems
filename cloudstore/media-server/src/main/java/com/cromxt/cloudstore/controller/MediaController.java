@@ -23,14 +23,14 @@ public class MediaController {
     private final MediaService mediaService;
 
 
-    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/upload")
     public ResponseEntity<Mono<String>> uploadFile(
-            @RequestPart(name = "media") FilePart file,
+            @ModelAttribute MediaUploadRequest mediaUploadRequest,
             @RequestParam(name = "hlsStatus", required = false, defaultValue = "false") boolean hlsStatus,
             @RequestParam(name = "fileName", required = false, defaultValue = "cloud-store-file") String fileName,
             @RequestHeader(name = "Content-Length") Long fileSize
     ) {
-        return ResponseEntity.ok(mediaService.saveFile(file, fileName, hlsStatus, fileSize));
+        return ResponseEntity.ok(mediaService.saveFile(mediaUploadRequest.media(), fileName, hlsStatus, fileSize));
     }
 
 

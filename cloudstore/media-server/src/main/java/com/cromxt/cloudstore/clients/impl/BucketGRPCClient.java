@@ -15,6 +15,7 @@ import com.google.protobuf.ByteString;
 
 import io.grpc.stub.MetadataUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -32,20 +33,30 @@ public class BucketGRPCClient implements BucketClient {
         // Use of reactive implementation instead of blocking.
 
         ReactorMediaHandlerServiceGrpc.ReactorMediaHandlerServiceStub reactorMediaHandlerServiceStub = ReactorMediaHandlerServiceGrpc
-                .newReactorStub(channel);
+                .newReactorStub(channel)
+                .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(headers));
 
         Flux<MediaUploadRequest> data = fileData
                 .map(dataBuffer -> {
                     byte[] bytes = new byte[dataBuffer.readableByteCount()];
                     dataBuffer.read(bytes);
+                    DataBufferUtils.release(dataBuffer);
                     return MediaUploadRequest
                             .newBuilder()
                             .setFile(ByteString.copyFrom(bytes))
                             .build();
                 });
-        return data.as(reactorMediaHandlerServiceStub.withInterceptors(
-                        MetadataUtils.newAttachHeadersInterceptor(headers))::uploadFile)
-                .flatMap(fileUploadResponse -> {
+//        return data.as(reactorMediaHandlerServiceStub::uploadFile)
+//                .flatMap(fileUploadResponse -> {
+//                    channel.shutdown();
+//                    if (fileUploadResponse.getStatus() == OperationStatus.ERROR) {
+//                        return Mono.error(new ClientException(fileUploadResponse.getErrorMessage()));
+//                    }
+//
+//                    return Mono.just(fileUploadResponse.getFileName());
+//                });
+
+        return reactorMediaHandlerServiceStub.uploadFile(data).flatMap(fileUploadResponse -> {
                     channel.shutdown();
                     if (fileUploadResponse.getStatus() == OperationStatus.ERROR) {
                         return Mono.error(new ClientException(fileUploadResponse.getErrorMessage()));
