@@ -6,5 +6,5 @@ import org.springframework.http.codec.multipart.FilePart;
 import reactor.core.publisher.Mono;
 
 public interface MediaService {
-    Mono<FileResponse> saveFile(FilePart file, String fileName, Boolean hlsStatus, Long fileSize);
+    Mono<String> saveFile(FilePart file, String fileName, Boolean hlsStatus, Long fileSize);
 }

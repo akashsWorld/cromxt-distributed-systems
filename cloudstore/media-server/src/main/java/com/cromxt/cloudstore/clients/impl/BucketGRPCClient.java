@@ -46,9 +46,11 @@ public class BucketGRPCClient implements BucketClient {
         return data.as(reactorMediaHandlerServiceStub.withInterceptors(
                         MetadataUtils.newAttachHeadersInterceptor(headers))::uploadFile)
                 .flatMap(fileUploadResponse -> {
+                    channel.shutdown();
                     if (fileUploadResponse.getStatus() == OperationStatus.ERROR) {
                         return Mono.error(new ClientException(fileUploadResponse.getErrorMessage()));
                     }
+
                     return Mono.just(fileUploadResponse.getFileName());
                 });
 

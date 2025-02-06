@@ -33,14 +33,14 @@ public class FileServiceImpl implements FileService {
                 .fileName(fileName)
                 .fileSize(metaData.getContentLength())
                 .contentType(metaData.getContentType())
-                .absolutePath(String.format("%s/%s.%s",PATH,fileName,extension))
+                .absolutePath(String.format("%s/file-%s.%s",PATH,fileName,extension))
                 .build();
     }
 
     @Override
     public String getFileAbsolutePath(String metaData) {
-
-        return null;
+        File file = new File(metaData);
+        return String.format("%s/file-%s",PATH,metaData);
     }
 
     private String generateName(String extension){

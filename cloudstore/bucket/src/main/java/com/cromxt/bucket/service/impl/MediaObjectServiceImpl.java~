@@ -29,11 +29,9 @@ public class MediaObjectServiceImpl implements MediaObjectService {
 
         String fileDetails = fileService.getFileAbsolutePath(mediaId);
 
-
         Resource resource = resourceLoader.getResource("file:"+fileDetails);
 
         if(!resource.exists()){
-            log.error("File not found {}", mediaId);
             return Flux.empty();
         }
         NettyDataBufferFactory nettyDataBufferFactory = new NettyDataBufferFactory(
