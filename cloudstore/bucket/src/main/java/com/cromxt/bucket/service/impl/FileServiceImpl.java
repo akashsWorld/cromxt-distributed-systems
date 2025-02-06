@@ -1,19 +1,16 @@
 package com.cromxt.bucket.service.impl;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Objects;
-import java.util.UUID;
-
 import com.cromxt.bucket.exception.MediaOperationException;
+import com.cromxt.bucket.service.FileService;
 import com.cromxt.proto.files.MediaMetaData;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
-import com.cromxt.bucket.service.FileService;
+import java.io.File;
+import java.nio.file.Files;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -29,36 +26,29 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public FileDetails getFileDetails(MediaMetaData metaData) throws MediaOperationException {
-        String fileNameWithExtension = generateFileName(metaData.getFileName(),metaData.getContentType());
-        String fileId = generateId();
-        String fileName = metaData.getFileName();
+    public FileDetails generateFileDetails(MediaMetaData metaData) throws MediaOperationException {
+        String extension = metaData.getContentType();
+        String fileName = generateName(extension);
         return FileDetails.builder()
                 .fileName(fileName)
+                .fileSize(metaData.getContentLength())
                 .contentType(metaData.getContentType())
-                .fileId(fileId)
-                .absolutePath(String.format("%s/%s/%s",PATH,fileId,fileNameWithExtension))
+                .absolutePath(String.format("%s/%s.%s",PATH,fileName,extension))
                 .build();
     }
-    private String generateId() throws MediaOperationException{
-        String directoryName = null;
-        while (Objects.isNull(directoryName) && !new File(String.format("%s/%s",PATH,directoryName)).exists()){
-            directoryName = String.format("file-%s",UUID.randomUUID());
-        }
-        assert directoryName!= null;
 
-        String fullPath = String.format("%s/%s",PATH,directoryName);
+    @Override
+    public String getFileAbsolutePath(String metaData) {
 
-        File newMediaObject = new File(fullPath);
-
-        if(!newMediaObject.mkdirs()){
-            throw new MediaOperationException("Some error occurred during create the media directory.");
-        }
-        return directoryName;
+        return null;
     }
-    private String generateFileName(String fileName,String contentType) {
-        return String.format("%s.%s",fileName,contentType);
+
+    private String generateName(String extension){
+        String fileName = UUID.randomUUID().toString();
+        while(new File(String.format("%s/%s.%s",PATH,fileName,extension)).exists()) fileName = UUID.randomUUID().toString();
+        return fileName;
     }
+
 
     @AllArgsConstructor
     @NoArgsConstructor
@@ -69,13 +59,9 @@ public class FileServiceImpl implements FileService {
     public static class FileDetails{
         private String fileName;
         private String contentType;
-        private String fileId;
         private String absolutePath;
+        private Long fileSize;
 
-        public String getAbsolutePath(){
-            assert absolutePath != null;
-            return absolutePath;
-        }
     }
 
 

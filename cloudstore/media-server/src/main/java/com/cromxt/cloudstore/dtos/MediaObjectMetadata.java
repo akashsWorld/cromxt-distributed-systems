@@ -13,4 +13,5 @@ public class MediaObjectMetadata{
     private String contentType;
     private String fileName;
     private Boolean hlsStatus;
+    private Long contentLength;
 }

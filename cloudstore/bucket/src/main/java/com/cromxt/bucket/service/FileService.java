@@ -5,6 +5,8 @@ import static com.cromxt.bucket.service.impl.FileServiceImpl.FileDetails;
 import com.cromxt.proto.files.MediaMetaData;
 
 public interface FileService {
-    FileDetails getFileDetails(MediaMetaData contentType);
+    FileDetails generateFileDetails(MediaMetaData contentType);
+    String getFileAbsolutePath(String fileName);
+
 }
 

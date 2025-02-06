@@ -1,5 +1,6 @@
 package com.cromxt.bucket.service.impl;
 
+import com.cromxt.bucket.exception.InvalidMediaData;
 import com.cromxt.bucket.exception.MediaOperationException;
 import com.cromxt.bucket.service.FileService;
 import com.cromxt.grpc.MediaHeadersKey;
@@ -14,6 +15,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static com.cromxt.bucket.service.impl.FileServiceImpl.FileDetails;
 
@@ -28,17 +30,24 @@ public class MediaHandlerGRPCServiceImpl extends ReactorMediaHandlerServiceGrpc.
     //    Handle the upload request in reactive way(Using reactive types Mono and Flux.)
     @Override
     public Mono<MediaUploadResponse> uploadFile(Flux<MediaUploadRequest> request) {
-        MediaMetaData mediaMetaData = MediaHeadersKey.MEDIA_META_DATA.getContextKey().get(Context.current());
-
-        FileDetails fileDetails = fileService.getFileDetails(mediaMetaData);
 
         return Mono.create(sink -> {
+
+            MediaMetaData mediaMetaData = MediaHeadersKey.MEDIA_META_DATA.getContextKey().get(Context.current());
+            FileDetails fileDetails = fileService.generateFileDetails(mediaMetaData);
+            long actualSize = fileDetails.getFileSize();
             try {
                 FileOutputStream fileOutputStream = new FileOutputStream(fileDetails.getAbsolutePath());
+                AtomicLong countSize = new AtomicLong(0L);
                 request.subscribeOn(Schedulers.boundedElastic())
                         .doOnNext(chunkData -> {
+                           byte[] data = chunkData.getFile().toByteArray();
+                           countSize.addAndGet(data.length);
+                           if(countSize.get() > actualSize){
+                               throw new InvalidMediaData("The mentioned data is greater than the actual size");
+                           }
                             try {
-                                fileOutputStream.write(chunkData.getFile().toByteArray());
+                                fileOutputStream.write(data);
                             } catch (Exception e) {
                                 throw new RuntimeException(e);
                             }
@@ -47,17 +56,24 @@ public class MediaHandlerGRPCServiceImpl extends ReactorMediaHandlerServiceGrpc.
                             try {
                                 fileOutputStream.close();
                                 sink.success(MediaUploadResponse.newBuilder()
-                                        .setStatus(MediaUploadStatus.SUCCESS)
-                                        .setFileId("long-file-id")
+                                        .setStatus(OperationStatus.SUCCESS)
+                                        .setFileName(fileDetails.getFileName())
                                         .build());
                             } catch (IOException e) {
-                                sink.error(e);
+                                throw new MediaOperationException(e.getMessage());
                             }
                         })
-                        .doOnError(sink::error)
+                        .doOnError(e->{
+                            sink.success(MediaUploadResponse.newBuilder()
+                                    .setStatus(OperationStatus.ERROR)
+                                    .setErrorMessage(e.getMessage())
+                                    .build());
+                        })
                         .subscribe();
             } catch (IOException e) {
-                sink.error(e);
+                sink.success(MediaUploadResponse.newBuilder()
+                                .setStatus(OperationStatus.ERROR)
+                        .build());
             }
         });
     }

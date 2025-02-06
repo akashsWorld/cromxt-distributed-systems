@@ -1,5 +1,7 @@
 package com.cromxt.cloudstore.clients.impl;
 
+import com.cromxt.cloudstore.exception.ClientException;
+import com.cromxt.proto.files.*;
 import io.grpc.*;
 import io.grpc.netty.NettyChannelBuilder;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -7,32 +9,24 @@ import org.springframework.core.io.buffer.DataBuffer;
 import com.cromxt.cloudstore.clients.BucketClient;
 import com.cromxt.cloudstore.dtos.MediaObjectMetadata;
 import com.cromxt.cloudstore.dtos.response.MediaObjectDetails;
-import com.cromxt.dtos.client.response.BucketAddress;
+import com.cromxt.dtos.client.response.BucketDetails;
 import com.cromxt.grpc.MediaHeadersKey;
-import com.cromxt.proto.files.MediaHandlerServiceGrpc;
-import com.cromxt.proto.files.MediaMetaData;
-import com.cromxt.proto.files.MediaUploadRequest;
-import com.cromxt.proto.files.ReactorMediaHandlerServiceGrpc;
 import com.google.protobuf.ByteString;
 
 import io.grpc.stub.MetadataUtils;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
-import reactor.util.retry.Retry;
-
-import java.time.Duration;
 
 @Slf4j
 public class BucketGRPCClient implements BucketClient {
 
     @Override
-    public Mono<MediaObjectDetails> uploadFile(Flux<DataBuffer> fileData,
-                                               MediaObjectMetadata mediaObjectMetadata,
-                                               BucketAddress bucketAddress) {
+    public Mono<String> uploadFile(Flux<DataBuffer> fileData,
+                                   MediaObjectMetadata mediaObjectMetadata,
+                                   BucketDetails bucketDetails) {
 
-        ManagedChannel channel = createNettyManagedChannel(bucketAddress);
+        ManagedChannel channel = createNettyManagedChannel(bucketDetails);
 
         Metadata headers = generateHeaders(mediaObjectMetadata);
         // Use of reactive implementation instead of blocking.
@@ -51,25 +45,25 @@ public class BucketGRPCClient implements BucketClient {
                 });
         return data.as(reactorMediaHandlerServiceStub.withInterceptors(
                         MetadataUtils.newAttachHeadersInterceptor(headers))::uploadFile)
-                .doOnError(Throwable::printStackTrace)
                 .flatMap(fileUploadResponse -> {
-                    System.out.println(fileUploadResponse.getStatus());
-                    channel.shutdown();
-                    return Mono.empty();
+                    if (fileUploadResponse.getStatus() == OperationStatus.ERROR) {
+                        return Mono.error(new ClientException(fileUploadResponse.getErrorMessage()));
+                    }
+                    return Mono.just(fileUploadResponse.getFileName());
                 });
 
     }
 
-    private ManagedChannel createNettyManagedChannel(BucketAddress bucketAddress) {
+    private ManagedChannel createNettyManagedChannel(BucketDetails bucketDetails) {
         return NettyChannelBuilder
-                .forAddress(bucketAddress.url(), bucketAddress.port())
+                .forAddress(bucketDetails.hostName(), bucketDetails.rpcPort())
                 .usePlaintext()
                 .flowControlWindow(NettyChannelBuilder.DEFAULT_FLOW_CONTROL_WINDOW)
                 .build();
     }
 
-    private ManagedChannel createManagedChannel(BucketAddress bucketAddress) {
-        return ManagedChannelBuilder.forAddress(bucketAddress.url(), bucketAddress.port())
+    private ManagedChannel createManagedChannel(BucketDetails bucketDetails) {
+        return ManagedChannelBuilder.forAddress(bucketDetails.hostName(), bucketDetails.rpcPort())
                 .usePlaintext()
                 .build();
     }
@@ -79,8 +73,8 @@ public class BucketGRPCClient implements BucketClient {
 
         MediaMetaData mediaMetaData = MediaMetaData.newBuilder()
                 .setContentType(mediaObjectMetadata.getContentType())
+                .setContentLength(mediaObjectMetadata.getContentLength())
                 .setHlsStatus(mediaObjectMetadata.getHlsStatus())
-                .setFileName(mediaObjectMetadata.getFileName())
                 .build();
 
         Metadata metadata = new Metadata();
@@ -92,12 +86,12 @@ public class BucketGRPCClient implements BucketClient {
     }
 
     private MediaHandlerServiceGrpc.MediaHandlerServiceStub getMediaHandlerServiceStub(
-            BucketAddress bucketAddress) {
+            BucketDetails bucketDetails) {
 
         // To use reactive types this Stub is not used. but it can also be used as a blocking stub.
         ManagedChannel channel = ManagedChannelBuilder.forAddress(
-                        bucketAddress.url(),
-                        bucketAddress.port())
+                        bucketDetails.hostName(),
+                        bucketDetails.rpcPort())
                 .usePlaintext()
                 .build();
         return MediaHandlerServiceGrpc.newStub(channel);

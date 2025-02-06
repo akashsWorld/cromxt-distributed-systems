@@ -3,7 +3,7 @@ package com.cromxt.cloudstore.clients.impl;
 import com.cromxt.cloudstore.clients.BucketClient;
 import com.cromxt.cloudstore.dtos.MediaObjectMetadata;
 import com.cromxt.cloudstore.dtos.response.MediaObjectDetails;
-import com.cromxt.dtos.client.response.BucketAddress;
+import com.cromxt.dtos.client.response.BucketDetails;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -25,11 +25,11 @@ public class BucketHTTPClient implements BucketClient {
     }
 
     @Override
-    public Mono<MediaObjectDetails> uploadFile(Flux<DataBuffer> fileData,
+    public Mono<String> uploadFile(Flux<DataBuffer> fileData,
                                                MediaObjectMetadata metaData,
-                                               BucketAddress bucketAddress) {
+                                               BucketDetails bucketDetails) {
 
-        String url = generateUrl(bucketAddress);
+        String url = generateUrl(bucketDetails);
         return fileData
                 .collectList()
                 .flatMap(dataBuffers -> {
@@ -54,8 +54,8 @@ public class BucketHTTPClient implements BucketClient {
                         Mono.empty());
     }
 
-    private String generateUrl(BucketAddress bucketAddress) {
-        return String.format("http://%s:%s", bucketAddress.url(), bucketAddress.port());
+    private String generateUrl(BucketDetails bucketDetails) {
+        return String.format("http://%s:%s", bucketDetails.hostName(), bucketDetails.httpPort());
     }
 
 }

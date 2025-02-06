@@ -2,7 +2,6 @@ package com.cromxt.bucket.service.impl;
 
 import com.cromxt.bucket.service.FileService;
 import com.cromxt.proto.files.MediaMetaData;
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,7 +26,7 @@ class FileServiceImplTest {
                 .setHlsStatus(true)
                 .setContentType("mp4")
                 .build();
-        FileDetails fileDetails = fileService.getFileDetails(mediaMetaData);
+        FileDetails fileDetails = fileService.generateFileDetails(mediaMetaData);
 
         assertEquals(mediaMetaData.getContentType(),fileDetails.getContentType());
         assertNotNull(fileDetails);

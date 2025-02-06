@@ -6,7 +6,7 @@ option java_multiple_files = true;
 
 
 
-enum MediaUploadStatus {
+enum OperationStatus {
   SUCCESS = 0;
   ERROR = 1;
 }
@@ -15,18 +15,30 @@ enum MediaUploadStatus {
 message MediaMetaData {
   bool hlsStatus = 1;
   string contentType = 2;
-  string fileName = 3;
-
+  uint64 contentLength = 3;
 }
 message MediaUploadRequest {
   bytes file = 1;
 }
 
 message MediaUploadResponse {
-  string fileId = 1;
-  MediaUploadStatus status = 2;
+  optional string fileName = 1;
+  OperationStatus status = 2;
+  optional string errorMessage = 3;
+}
+
+message EmptyResponse{
+  OperationStatus status = 1;
+}
+
+message MediaObjectDetails{
+  string fileName = 1;
 }
 
 service MediaHandlerService {
   rpc uploadFile (stream MediaUploadRequest) returns (MediaUploadResponse) {}
+}
+
+service MediaObjectService{
+  rpc deleteMediaObject (MediaObjectDetails) returns (EmptyResponse) {}
 }

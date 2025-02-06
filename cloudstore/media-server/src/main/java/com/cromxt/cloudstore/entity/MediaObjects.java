@@ -3,6 +3,7 @@ package com.cromxt.cloudstore.entity;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
@@ -16,6 +17,7 @@ public class MediaObjects {
 
     @Id
     private String id;
+    @Indexed(unique = true)
     private String name;
     private Long size;
     private String bucketId;
