@@ -18,7 +18,11 @@ public class MediaController {
     private final MediaObjectService mediaObjectService;
 
     @GetMapping(value = "/{objectId}",produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<Flux<DataBuffer>> getObject(@PathVariable String objectId) {
+    public ResponseEntity<Flux<DataBuffer>> getObject(
+            @PathVariable(name = "objectId") String objectId,
+            @RequestHeader(name="User-Agent") String userAgent
+    ) {
+        System.out.println(userAgent);
         return ResponseEntity.ok(mediaObjectService.getFile(objectId));
     }
 

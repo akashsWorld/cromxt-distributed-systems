@@ -38,7 +38,7 @@ public class MediaServiceImpl implements MediaService {
     ) {
         String fileExtension = getFileExtension(file.filename());
 
-        Mono<BucketDetails> bucketDetails = Mono.just(new BucketDetails("bucket-1", "192.168.0.146", 9090, 9091));
+        Mono<BucketDetails> bucketDetails = Mono.just(new BucketDetails("bucket-1", "192.168.0.181", 9090, 9091));
 
 
         return bucketDetails.flatMap(bucket -> {

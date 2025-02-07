@@ -2,14 +2,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<parent>
 		<groupId>com.cromxt</groupId>
-		<artifactId>cloudstore</artifactId>
+		<artifactId>cloudstore-server</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
+
 	<artifactId>route-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>route-service</name>
+	<packaging>jar</packaging>
 	<description>Route service handle all route related information.</description>
 	<url/>
 	<licenses>
@@ -26,6 +29,8 @@
 	</scm>
 	<properties>
 		<java.version>17</java.version>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
 	</properties>
 	<dependencies>
 		<dependency>

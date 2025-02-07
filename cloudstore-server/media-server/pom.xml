@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.cromxt</groupId>
-		<artifactId>cloudstore</artifactId>
+		<artifactId>cloudstore-server</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 

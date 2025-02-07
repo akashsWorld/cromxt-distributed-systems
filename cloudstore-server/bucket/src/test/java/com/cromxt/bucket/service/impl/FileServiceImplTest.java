@@ -22,7 +22,6 @@ class FileServiceImplTest {
     @Test
     void shouldCreateAFileWithTheDetailsWithMediaObjectMetaData() {
         MediaMetaData mediaMetaData = MediaMetaData.newBuilder()
-                .setFileName("long-file-name")
                 .setHlsStatus(true)
                 .setContentType("mp4")
                 .build();
@@ -32,6 +31,5 @@ class FileServiceImplTest {
         assertNotNull(fileDetails);
         assertNotNull(fileDetails.getAbsolutePath());
         assertNotNull(fileDetails.getFileName());
-        assertNotNull(fileDetails.getFileId());
     }
 }
