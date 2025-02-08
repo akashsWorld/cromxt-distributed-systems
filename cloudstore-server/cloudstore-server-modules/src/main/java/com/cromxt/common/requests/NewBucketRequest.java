@@ -1,4 +1,4 @@
-package com.cromxt.common.requests.client.requests;
+package com.cromxt.common.requests;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

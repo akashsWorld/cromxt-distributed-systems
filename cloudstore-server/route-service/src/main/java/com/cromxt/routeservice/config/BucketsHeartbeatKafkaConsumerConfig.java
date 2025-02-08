@@ -1,6 +1,6 @@
 package com.cromxt.routeservice.config;
 
-import com.cromxt.dtos.service.BucketInformation;
+import com.cromxt.routeservice.dtos.BucketInformation;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;
@@ -26,7 +26,7 @@ public class BucketsHeartbeatKafkaConsumerConfig {
         props.put(ConsumerConfig.GROUP_ID_CONFIG, String.format("%s-%s",UUID.randomUUID(), UUID.randomUUID()));
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "com.cromxt.dtos.requests.BucketInformation"); // Ensure correct type
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "com.cromxt.routeservice.dtos.BucketInformation"); // Ensure correct type
         return new DefaultKafkaConsumerFactory<>(props);
     }
 

@@ -3,9 +3,10 @@ package com.cromxt.toolkit.cloudstore.impl;
 
 import com.cromxt.grpc.MediaHeadersKey;
 import com.cromxt.proto.files.*;
-import com.cromxt.toolkit.cloudstore.BucketDetails;
-import com.cromxt.toolkit.cloudstore.CloudStoreClient;
+import com.cromxt.routeing.BucketDetails;
+import com.cromxt.routeing.MediaDetails;
 import com.cromxt.toolkit.cloudstore.CromxtUserDetails;
+import com.cromxt.toolkit.cloudstore.ReactiveCloudStoreClient;
 import com.cromxt.toolkit.cloudstore.exceptions.CloudStoreServerException;
 import com.cromxt.toolkit.cloudstore.metadata.MediaObjectMetaData;
 import com.google.protobuf.ByteString;
@@ -14,50 +15,48 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.Metadata;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.MetadataUtils;
-import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.http.codec.multipart.FilePart;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
 
 
+public class ReactiveCloudStoreRPCClientImpl implements ReactiveCloudStoreClient {
 
-public class CloudStoreRPCClient implements CloudStoreClient {
 
+    private final String API_KEY;
+    private final WebClient webClient;
 
-    private String API_KEY;
-    private WebClient webClient;
-
-    public CloudStoreRPCClient(CromxtUserDetails cromxtUserDetails) {
+    public ReactiveCloudStoreRPCClientImpl(CromxtUserDetails cromxtUserDetails, WebClient.Builder webclientBuilder) {
         this.API_KEY= cromxtUserDetails.getApiKey();
-        this.webClient = cromxtUserDetails.getWebClient();
+        this.webClient = webclientBuilder.baseUrl("").build();
     }
 
     @Override
-    public String saveFile(FilePart file) {
+    public Mono<String> saveFile(Long contentLength, Flux<DataBuffer> data) {
 
-        return "";
+
+        return Mono.empty();
     }
 
-    @Override
-    public String saveFile(MultipartFile file) {
-        return "";
-    }
 
-    private Mono<BucketDetails> getBucketDetails(
-            MediaMetaData mediaMetaData
-    ){
-        return webClient.post()
+
+    private Mono<BucketDetails> getBucketDetails(){
+//       TODO: Add all media details;
+        MediaDetails mediaDetails = new MediaDetails();
+
+        return webClient
+                .post()
                 .header("Api-Key",API_KEY)
-                .bodyValue(mediaMetaData)
+                .bodyValue(mediaDetails)
                 .retrieve()
-                .onStatus(HttpStatusCode::isError,clientResponse -> Mono.error(new RuntimeException("Some error occurred.")))
-                .bodyToMono(BucketDetails.class)
+                .onStatus(HttpStatusCode::isError,(clientResponse -> Mono.error(new CloudStoreServerException("Some error occurred."))))
+                .bodyToMono(BucketDetails.class);
     }
 
 

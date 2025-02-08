@@ -2,7 +2,7 @@
 //
 //import com.cromxt.mediaserver.clients.BucketClient;
 //import com.cromxt.mediaserver.dtos.MediaObjectMetadata;
-//import com.cromxt.toolkit.cloudstore.BucketDetails;
+//import com.cromxt.routeing.BucketDetails;
 //import lombok.extern.slf4j.Slf4j;
 //import org.springframework.core.io.buffer.DataBuffer;
 //import org.springframework.core.io.buffer.DataBufferUtils;
@@ -15,7 +15,7 @@
 //import reactor.core.publisher.Mono;
 //
 //@Slf4j
-//public class CloudStoreHTTPClient implements BucketClient {
+//public class CloudStoreHTTPClient{
 //
 //    private final WebClient webClient;
 //

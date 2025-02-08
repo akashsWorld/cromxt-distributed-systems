@@ -40,7 +40,7 @@
 		<module>bucket-server</module>
 		<module>media-server</module>
 		<module>route-service</module>
-		<module>cloudstore-common-module</module>
+		<module>cloudstore-server-modules</module>
 	</modules>
 
 	<dependencyManagement>

@@ -1,4 +1,4 @@
-package com.cromxt.common.requests.client.requests;
+package com.cromxt.common.requests;
 
 public class UpdateBucketRequest {
     private String hostName;

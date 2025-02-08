@@ -1,6 +1,6 @@
 package com.cromxt.routeservice.service.impl;
 
-import com.cromxt.dtos.client.requests.NewBucketRequest;
+import com.cromxt.common.requests.NewBucketRequest;
 import com.cromxt.routeservice.service.RouteService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,8 +16,9 @@ public class RouteServiceImpl implements RouteService {
 
     private final AvailableRouteDiscovererService availableRouteDiscovererService;
 
+
     @Override
-    public Flux<> getAllAvailableRoutes() {
-        return availableRouteDiscovererService.getAllAvailableRoutes().map();
+    public Flux<NewBucketRequest> getAllAvailableRoutes() {
+        return null;
     }
 }

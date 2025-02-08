@@ -10,7 +10,7 @@
     </parent>
 
     <groupId>com.cromxt.common</groupId>
-    <artifactId>cloudstore-common-module</artifactId>
+    <artifactId>cloudstore-server-modules</artifactId>
 
 
     <properties>

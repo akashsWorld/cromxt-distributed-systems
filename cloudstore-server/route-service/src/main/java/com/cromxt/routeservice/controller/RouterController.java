@@ -1,7 +1,7 @@
 package com.cromxt.routeservice.controller;
 
-import com.cromxt.common.requests.client.requests.MediaMetadata;
-import com.cromxt.routeservice.dtos.BucketDetails;
+import com.cromxt.routeing.BucketDetails;
+import com.cromxt.routeing.MediaDetails;
 import com.cromxt.routeservice.service.RouteService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,8 +16,9 @@ import reactor.core.publisher.Mono;
 public record RouterController(
         RouteService routeService) {
     @PostMapping("/get-bucket-id")
-    public Mono<ResponseEntity<BucketDetails>> getBucketId(@RequestBody MediaMetadata fileMetaData) {
-        System.out.println(fileMetaData);
+    public Mono<ResponseEntity<BucketDetails>> getBucketId(
+            @RequestBody MediaDetails mediaDetails) {
+        System.out.println(mediaDetails);
         return Mono
                 .just(new ResponseEntity<>(new BucketDetails("bucket-1", "192.168.0.146", 9091, 9090), HttpStatus.OK));
     }
