@@ -1,6 +1,6 @@
 package com.cromxt.routeservice.config;
 
-import com.cromxt.dtos.service.BucketsUpdateRequest;
+import com.cromxt.dtos.service.BucketUpdateRequest;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +19,7 @@ import java.util.UUID;
 public class BucketsUpdateKafkaConsumerConfig {
 
     @Bean
-    public ConsumerFactory<String, BucketsUpdateRequest> bucketsUpdateConsumerFactory(Environment environment) {
+    public ConsumerFactory<String, BucketUpdateRequest> bucketsUpdateConsumerFactory(Environment environment) {
         String bootstrapServers = environment.getProperty("ROUTE_SERVICE_CONFIG_BUCKET_UPDATE_BOOTSTRAP_SERVERS", String.class);
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
@@ -31,8 +31,8 @@ public class BucketsUpdateKafkaConsumerConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, BucketsUpdateRequest> bucketsUpdateKafkaListenerContainerFactory(Environment environment) {
-        ConcurrentKafkaListenerContainerFactory<String, BucketsUpdateRequest> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    public ConcurrentKafkaListenerContainerFactory<String, BucketUpdateRequest> bucketsUpdateKafkaListenerContainerFactory(Environment environment) {
+        ConcurrentKafkaListenerContainerFactory<String, BucketUpdateRequest> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(bucketsUpdateConsumerFactory(environment));
         return factory;
     }

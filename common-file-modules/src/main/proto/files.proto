@@ -31,14 +31,8 @@ message EmptyResponse{
   OperationStatus status = 1;
 }
 
-message MediaObjectDetails{
-  string fileName = 1;
-}
 
 service MediaHandlerService {
   rpc uploadFile (stream MediaUploadRequest) returns (MediaUploadResponse) {}
 }
 
-service MediaObjectService{
-  rpc deleteMediaObject (MediaObjectDetails) returns (EmptyResponse) {}
-}

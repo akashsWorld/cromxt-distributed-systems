@@ -2,13 +2,13 @@ package com.cromxt.bucketserver.controller;
 
 
 import com.cromxt.bucketserver.service.BucketService;
-import com.cromxt.dtos.client.requests.NewBucketRequest;
-import com.cromxt.dtos.client.response.BucketResponse;
-import com.cromxt.dtos.client.response.BucketResponseDTO;
-import com.cromxt.dtos.client.response.ResponseState;
-import com.cromxt.dtos.client.response.derived.ErrorResponse;
-import com.cromxt.dtos.client.response.derived.NewBucketListResponse;
-import com.cromxt.dtos.client.response.derived.NewBucketResponse;
+import com.cromxt.common.requests.client.requests.NewBucketRequest;
+import com.cromxt.common.requests.client.response.BucketResponse;
+import com.cromxt.common.requests.client.response.BucketResponseDTO;
+import com.cromxt.common.requests.client.response.ResponseState;
+import com.cromxt.common.requests.client.response.derived.ErrorResponse;
+import com.cromxt.common.requests.client.response.derived.NewBucketListResponse;
+import com.cromxt.common.requests.client.response.derived.NewBucketResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -18,5 +18,6 @@ public class Buckets {
     private String id;
     @Indexed(unique = true)
     private String hostname;
-    private Integer port;
+    private Integer rpcPort;
+    private Integer httpPort;
 }

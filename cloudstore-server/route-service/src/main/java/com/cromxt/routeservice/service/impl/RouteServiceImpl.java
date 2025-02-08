@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -16,7 +17,7 @@ public class RouteServiceImpl implements RouteService {
     private final AvailableRouteDiscovererService availableRouteDiscovererService;
 
     @Override
-    public Flux<NewBucketRequest> getAllAvailableRoutes() {
-        return null;
+    public Flux<> getAllAvailableRoutes() {
+        return availableRouteDiscovererService.getAllAvailableRoutes().map();
     }
 }

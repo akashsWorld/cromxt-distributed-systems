@@ -1,7 +1,9 @@
 package com.cromxt.routeservice.service.impl;
 
-import com.cromxt.dtos.service.BucketInformation;
-import com.cromxt.dtos.service.BucketsUpdateRequest;
+import com.cromxt.common.requests.service.BucketObject;
+import com.cromxt.common.requests.service.BucketUpdateRequest;
+import com.cromxt.common.requests.service.Method;
+import com.cromxt.routeservice.dtos.BucketInformation;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,30 +29,55 @@ public class AvailableRouteDiscovererService {
 
     @KafkaListener(topics = "${ROUTE_SERVICE_CONFIG_BUCKET_HEARTBEAT_TOPIC}",containerFactory = "bucketsHeartbeatKafkaListenerContainerFactory")
     private void bucketListUpdated(BucketInformation bucketInformation) {
-//        ALL_BUCKETS.put(bucketInformation.getBucketId(),
-//                AvailableBuckets.builder()
-//                        .hostName(bucketInformation.getBucketHostName())
-//                        .port(bucketInformation.getPort())
-//                        .initializationTime(System.currentTimeMillis())
-//                        .availableSpaceInBytes(bucketInformation.getAvailableSpaceInBytes())
-//                        .build());
-        System.out.println(bucketInformation);
-
+        AvailableBuckets availableBuckets = ALL_BUCKETS.get(bucketInformation.getBucketId());
+        availableBuckets.setAvailableSpaceInBytes(bucketInformation.getAvailableSpaceInBytes());
+        availableBuckets.setLastRefreshTime(System.currentTimeMillis());
     }
     @KafkaListener(topics = "${ROUTE_SERVICE_CONFIG_BUCKET_INFORMATION_UPDATE_TOPIC}",containerFactory = "bucketsUpdateKafkaListenerContainerFactory")
-    private void bucketListUpdated(BucketsUpdateRequest bucketUpdateRequest) {
-        System.out.println(bucketUpdateRequest);
+    private void bucketListUpdated(BucketUpdateRequest bucketUpdateRequest) {
+        
+        Method method = bucketUpdateRequest.getMethod();
+        BucketObject bucketObject = bucketUpdateRequest.getNewBucketObject();
+
+        switch (method) {
+            case ADD:
+                ALL_BUCKETS.put(bucketObject.getBucketId(), new AvailableBuckets(
+                        bucketObject.getBucketId(),
+                        bucketObject.getHostName(),
+                        bucketObject.getRpcPort(),
+                        bucketObject.getHttpPort(),
+                        null,
+                        null
+                ));
+                break;
+            case UPDATE:
+                ALL_BUCKETS.replace(bucketObject.getBucketId(), new AvailableBuckets(
+                        bucketObject.getBucketId(),
+                        bucketObject.getHostName(),
+                        bucketObject.getRpcPort(),
+                        bucketObject.getHttpPort(),
+                        null,
+                        null
+                ));
+            case DELETE:
+                ALL_BUCKETS.remove(bucketObject.getBucketId());
+            default:
+                break;
+        }
+        
     }
+
 
     @Builder
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     private static class AvailableBuckets {
-
+        private String bucketId;
         private String hostName;
-        private Integer port;
-        private Long initializationTime;
+        private Integer rpcPort;
+        private Integer httpPort;
+        private Long lastRefreshTime;
         private Long availableSpaceInBytes;
     }
 

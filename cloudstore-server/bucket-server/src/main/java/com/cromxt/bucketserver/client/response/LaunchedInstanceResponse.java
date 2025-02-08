@@ -1,7 +1,7 @@
 package com.cromxt.bucketserver.client.response;
 
 public record LaunchedInstanceResponse(
-    Long size
+   Integer rpcPort,
+   Integer httpPort
 ){
-
 }
