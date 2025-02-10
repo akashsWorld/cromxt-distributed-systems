@@ -1,6 +1,0 @@
-/home/akash/Development/Projects/crom-bucket/cloudstore-toolkit/src/main/java/com/cromxt/toolkit/cloudstore/BucketDetails.java
-/home/akash/Development/Projects/crom-bucket/cloudstore-toolkit/src/main/java/com/cromxt/toolkit/cloudstore/CloudStoreClient.java
-/home/akash/Development/Projects/crom-bucket/cloudstore-toolkit/src/main/java/com/cromxt/toolkit/cloudstore/exceptions/CloudStoreServerException.java
-/home/akash/Development/Projects/crom-bucket/cloudstore-toolkit/src/main/java/com/cromxt/toolkit/cloudstore/impl/CloudStoreHTTPClient.java
-/home/akash/Development/Projects/crom-bucket/cloudstore-toolkit/src/main/java/com/cromxt/toolkit/cloudstore/impl/CloudStoreRPCClient.java
-/home/akash/Development/Projects/crom-bucket/cloudstore-toolkit/src/main/java/com/cromxt/toolkit/cloudstore/metadata/MediaObjectMetaData.java

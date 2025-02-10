@@ -1,6 +1,0 @@
-com/cromxt/toolkit/cloudstore/metadata/MediaObjectMetaData$MediaObjectMetaDataBuilder.class
-com/cromxt/toolkit/cloudstore/BucketDetails.class
-com/cromxt/toolkit/cloudstore/CloudStoreClient.class
-com/cromxt/toolkit/cloudstore/metadata/MediaObjectMetaData.class
-com/cromxt/toolkit/cloudstore/exceptions/CloudStoreServerException.class
-com/cromxt/toolkit/cloudstore/impl/CloudStoreRPCClient.class
