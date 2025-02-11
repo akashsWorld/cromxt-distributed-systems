@@ -1,7 +1,7 @@
 package com.cromxt.bucket.service.impl;
 
 
-import com.cromxt.common.kafka.BucketInformation;
+import com.cromxt.common.kafka.BucketHeartBeat;
 import org.springframework.core.env.Environment;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -12,13 +12,13 @@ import java.io.File;
 @Service
 public class BucketInformationEventProducer {
 
-    private final KafkaTemplate<String, BucketInformation> kafkaTemplate;
+    private final KafkaTemplate<String, BucketHeartBeat> kafkaTemplate;
     private final String topic;
     private final String storagePath;
     private final String bucketId;
 
     public BucketInformationEventProducer(
-            KafkaTemplate<String, BucketInformation> kafkaTemplate,
+            KafkaTemplate<String, BucketHeartBeat> kafkaTemplate,
             Environment environment) {
         this.kafkaTemplate = kafkaTemplate;
         this.topic = environment.getProperty("BUCKET_CONFIG_KAFKA_TOPIC_NAME", String.class, "buckets");
@@ -32,10 +32,10 @@ public class BucketInformationEventProducer {
         kafkaTemplate.send(topic, getBucketInformation());
     }
 
-    private BucketInformation getBucketInformation(){
+    private BucketHeartBeat getBucketInformation(){
         File rootDirectory = new File(storagePath);
         long availableSpaceInBytes = rootDirectory.getFreeSpace();
-        return BucketInformation.builder()
+        return BucketHeartBeat.builder()
                 .bucketId(bucketId)
                 .availableSpaceInBytes(availableSpaceInBytes)
                 .build();

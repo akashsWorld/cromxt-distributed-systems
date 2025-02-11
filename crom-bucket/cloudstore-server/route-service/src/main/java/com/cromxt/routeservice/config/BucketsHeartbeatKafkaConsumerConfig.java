@@ -1,6 +1,6 @@
 package com.cromxt.routeservice.config;
 
-import com.cromxt.common.kafka.BucketInformation;
+import com.cromxt.common.kafka.BucketHeartBeat;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +18,7 @@ import java.util.Map;
 public class BucketsHeartbeatKafkaConsumerConfig {
 
     @Bean
-    public ConsumerFactory<String, BucketInformation> bucketsHeartbeatConsumerFactory(Environment environment) {
+    public ConsumerFactory<String, BucketHeartBeat> bucketsHeartbeatConsumerFactory(Environment environment) {
         String bootstrapServers = environment.getProperty("ROUTE_SERVICE_CONFIG_HEARTBEAT_BOOTSTRAP_SERVERS", String.class);
         String heartbeatGroupId = environment.getProperty("ROUTE_SERVICE_CONFIG_HEARTBEAT_GROUP_ID", String.class);
 
@@ -29,14 +29,14 @@ public class BucketsHeartbeatKafkaConsumerConfig {
         props.put(ConsumerConfig.GROUP_ID_CONFIG, heartbeatGroupId);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "com.cromxt.common.kafka.BucketInformation");
-        props.put(JsonDeserializer.TRUSTED_PACKAGES, "com.cromxt.common.kafka.BucketInformation"); // Ensure correct type
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "com.cromxt.common.kafka.BucketHeartBeat");
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, "com.cromxt.common.kafka.BucketHeartBeat"); // Ensure correct type
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, BucketInformation> bucketsHeartbeatKafkaListenerContainerFactory(Environment environment) {
-        ConcurrentKafkaListenerContainerFactory<String, BucketInformation> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    public ConcurrentKafkaListenerContainerFactory<String, BucketHeartBeat> bucketsHeartbeatKafkaListenerContainerFactory(Environment environment) {
+        ConcurrentKafkaListenerContainerFactory<String, BucketHeartBeat> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(bucketsHeartbeatConsumerFactory(environment));
         return factory;
     }

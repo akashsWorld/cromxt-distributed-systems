@@ -3,19 +3,22 @@ package com.cromxt.routeservice.service.impl;
 import com.cromxt.common.kafka.BucketObject;
 import com.cromxt.common.kafka.BucketUpdateRequest;
 import com.cromxt.common.kafka.Method;
-import com.cromxt.common.kafka.BucketInformation;
+import com.cromxt.common.kafka.BucketHeartBeat;
+import com.cromxt.common.routeing.BucketDetails;
+import com.cromxt.common.routeing.MediaDetails;
+import com.cromxt.routeservice.exception.BucketError;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -23,28 +26,44 @@ public class AvailableRouteDiscovererService {
 
 
     private static final Map<String, AvailableBuckets> ALL_BUCKETS = new HashMap<>();
+    private static String lastUsedBucketId = null;
+    private static AvailableBuckets  bucketHaveLargerSpaceTillNow = null;
+    private static Queue<String> bucketQue = new LinkedList<>();
+    private final int bucketLoadCount;
+    private static int bucketCount = 0;
 
-    public AvailableRouteDiscovererService() {
 
+    public AvailableRouteDiscovererService(Environment environment) {
+        Integer loadFactor = environment.getProperty("ROUTE_SERVICE_CONFIG_BUCKET_LOAD_COUNT", Integer.class);
+        assert loadFactor != null;
+        this.bucketLoadCount = loadFactor;
     }
 
     @KafkaListener(topics = "${ROUTE_SERVICE_CONFIG_BUCKET_HEARTBEAT_TOPIC}",containerFactory = "bucketsHeartbeatKafkaListenerContainerFactory")
-    private void bucketListUpdated(BucketInformation bucketInformation) {
-        AvailableBuckets availableBucket = ALL_BUCKETS.get(bucketInformation.getBucketId());
+    private void bucketListUpdated(BucketHeartBeat bucketHeartBeat) {
+        AvailableBuckets availableBucket = ALL_BUCKETS.get(bucketHeartBeat.getBucketId());
+        final AvailableBuckets currentBucket;
         if(availableBucket!=null){
-            availableBucket.setAvailableSpaceInBytes(bucketInformation.getAvailableSpaceInBytes());
+            availableBucket.setAvailableSpaceInBytes(bucketHeartBeat.getAvailableSpaceInBytes());
             availableBucket.setLastRefreshTime(System.currentTimeMillis());
+            currentBucket = availableBucket;
         }else{
-            ALL_BUCKETS.put(bucketInformation.getBucketId(), new AvailableBuckets(
-                    bucketInformation.getBucketId(),
+            AvailableBuckets newBucket = new AvailableBuckets(
+                    bucketHeartBeat.getBucketId(),
                     null,
                     null,
                     null,
                     System.currentTimeMillis(),
-                    bucketInformation.getAvailableSpaceInBytes()
-            ));
+                    bucketHeartBeat.getAvailableSpaceInBytes()
+            );
+            ALL_BUCKETS.put(bucketHeartBeat.getBucketId(),newBucket);
+            currentBucket = newBucket;
+            bucketQue.add(newBucket.getBucketId());
         }
 
+        if(currentBucket.getAvailableSpaceInBytes() > bucketHaveLargerSpaceTillNow.getAvailableSpaceInBytes()){
+            bucketHaveLargerSpaceTillNow = currentBucket;
+        }
     }
     @KafkaListener(topics = "${ROUTE_SERVICE_CONFIG_BUCKET_INFORMATION_UPDATE_TOPIC}",containerFactory = "bucketsUpdateKafkaListenerContainerFactory")
     private void bucketListUpdated(BucketUpdateRequest bucketUpdateRequest) {
@@ -81,10 +100,52 @@ public class AvailableRouteDiscovererService {
     }
 
 
-    @Scheduled(fixedRate =5000)
+    @Scheduled(fixedRate =10000)
     public void refreshRoutes(){
-        System.out.println(ALL_BUCKETS);
+        ALL_BUCKETS.forEach((bucketId,bucketDetails)->{
+            if(bucketDetails.getLastRefreshTime()+15000<System.currentTimeMillis()){
+                ALL_BUCKETS.remove(bucketId);
+            }
+        });
     }
+
+    public Mono<BucketDetails> getBucket(MediaDetails mediaDetails){
+
+        String generatedBucketId = bucketQue.remove();
+
+        while (!ALL_BUCKETS.containsKey(generatedBucketId)){
+            generatedBucketId = bucketQue.remove();
+        }
+
+        if(generatedBucketId==null){
+            return Mono.error(new BucketError("No registered buckets found."));
+        }
+
+        if(generatedBucketId.equals(lastUsedBucketId) && bucketQue.size()==1 && ALL_BUCKETS.containsKey(generatedBucketId)){
+            AvailableBuckets bucketDetails = ALL_BUCKETS.get(generatedBucketId);
+            bucketQue.add(generatedBucketId);
+            return Mono.just(
+                    BucketDetails.builder()
+                            .bucketId(bucketDetails.getBucketId())
+                            .hostName(bucketDetails.getHostName())
+                            .httpPort(bucketDetails.getHttpPort())
+                            .rpcPort(bucketDetails.getRpcPort())
+                            .build()
+            );
+        }
+
+
+        return Mono.just(
+                BucketDetails.builder()
+                        .bucketId(bucketDetails.getBucketId())
+                        .hostName(bucketDetails.getHostName())
+                        .httpPort(bucketDetails.getHttpPort())
+                        .rpcPort(bucketDetails.getRpcPort())
+                        .build()
+        );
+    }
+
+
 
 
     @Builder

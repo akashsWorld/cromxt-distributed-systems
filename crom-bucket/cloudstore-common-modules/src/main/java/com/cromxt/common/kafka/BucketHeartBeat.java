@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Builder
-public class BucketInformation {
+public class BucketHeartBeat {
 
     private String bucketId;
     private Long availableSpaceInBytes;
