@@ -25,9 +25,10 @@ import java.util.*;
 public class AvailableRouteDiscovererService {
 
 
-    private static final Map<String, AvailableBuckets> ALL_BUCKETS = new HashMap<>();
+    private static final Map<String, AvailableBucket> AVAILABLE_BUCKETS = new HashMap<>();
+    private static final Map<String, AvailableBucket> ONLINE_BUCKETS = new HashMap<>();
     private static String lastUsedBucketId = null;
-    private static AvailableBuckets  bucketHaveLargerSpaceTillNow = null;
+    private static String bucketHaveLargerSpaceTillNow = null;
     private static Queue<String> bucketQue = new LinkedList<>();
     private final int bucketLoadCount;
     private static int bucketCount = 0;
@@ -39,120 +40,134 @@ public class AvailableRouteDiscovererService {
         this.bucketLoadCount = loadFactor;
     }
 
-    @KafkaListener(topics = "${ROUTE_SERVICE_CONFIG_BUCKET_HEARTBEAT_TOPIC}",containerFactory = "bucketsHeartbeatKafkaListenerContainerFactory")
+    @KafkaListener(topics = "${ROUTE_SERVICE_CONFIG_BUCKET_HEARTBEAT_TOPIC}", containerFactory = "bucketsHeartbeatKafkaListenerContainerFactory")
     private void bucketListUpdated(BucketHeartBeat bucketHeartBeat) {
-        AvailableBuckets availableBucket = ALL_BUCKETS.get(bucketHeartBeat.getBucketId());
-        final AvailableBuckets currentBucket;
-        if(availableBucket!=null){
-            availableBucket.setAvailableSpaceInBytes(bucketHeartBeat.getAvailableSpaceInBytes());
-            availableBucket.setLastRefreshTime(System.currentTimeMillis());
-            currentBucket = availableBucket;
-        }else{
-            AvailableBuckets newBucket = new AvailableBuckets(
-                    bucketHeartBeat.getBucketId(),
-                    null,
-                    null,
-                    null,
-                    System.currentTimeMillis(),
-                    bucketHeartBeat.getAvailableSpaceInBytes()
-            );
-            ALL_BUCKETS.put(bucketHeartBeat.getBucketId(),newBucket);
-            currentBucket = newBucket;
-            bucketQue.add(newBucket.getBucketId());
-        }
-
-        if(currentBucket.getAvailableSpaceInBytes() > bucketHaveLargerSpaceTillNow.getAvailableSpaceInBytes()){
-            bucketHaveLargerSpaceTillNow = currentBucket;
+        String bucketId = bucketHeartBeat.getBucketId();
+        if (AVAILABLE_BUCKETS.containsKey(bucketId)) {
+            AvailableBucket bucket = ONLINE_BUCKETS.get(bucketId);
+            if (bucket == null) {
+                bucket = AVAILABLE_BUCKETS.get(bucketId);
+                bucketQue.add(bucketId);
+            }
+            bucket.setLastRefreshTime(System.currentTimeMillis());
+            bucket.setAvailableSpaceInBytes(bucketHeartBeat.getAvailableSpaceInBytes());
+            ONLINE_BUCKETS.put(bucketId, bucket);
+            if(bucketHaveLargerSpaceTillNow== null){
+                bucketHaveLargerSpaceTillNow = bucketId;
+            }
+            Long largeSpace = ONLINE_BUCKETS.get(bucketHaveLargerSpaceTillNow).getAvailableSpaceInBytes();
+            if(largeSpace ==null){
+                return;
+            }
+            bucketHaveLargerSpaceTillNow = largeSpace > bucketHeartBeat.getAvailableSpaceInBytes() ? bucketHaveLargerSpaceTillNow : bucketId;
         }
     }
-    @KafkaListener(topics = "${ROUTE_SERVICE_CONFIG_BUCKET_INFORMATION_UPDATE_TOPIC}",containerFactory = "bucketsUpdateKafkaListenerContainerFactory")
+
+    @KafkaListener(topics = "${ROUTE_SERVICE_CONFIG_BUCKET_INFORMATION_UPDATE_TOPIC}", containerFactory = "bucketsUpdateKafkaListenerContainerFactory")
     private void bucketListUpdated(BucketUpdateRequest bucketUpdateRequest) {
-        
+
         Method method = bucketUpdateRequest.getMethod();
         BucketObject bucketObject = bucketUpdateRequest.getNewBucketObject();
 
         switch (method) {
             case ADD:
-                ALL_BUCKETS.put(bucketObject.getBucketId(), new AvailableBuckets(
-                        bucketObject.getBucketId(),
-                        bucketObject.getHostName(),
-                        bucketObject.getRpcPort(),
-                        bucketObject.getHttpPort(),
-                        null,
-                        null
-                ));
+                AVAILABLE_BUCKETS.put(bucketObject.getBucketId(),
+                        new AvailableBucket(
+                                bucketObject.getBucketId(),
+                                bucketObject.getHostName(),
+                                bucketObject.getRpcPort(),
+                                bucketObject.getHttpPort(),
+                                System.currentTimeMillis(),
+                                null)
+                );
                 break;
             case UPDATE:
-                ALL_BUCKETS.replace(bucketObject.getBucketId(), new AvailableBuckets(
-                        bucketObject.getBucketId(),
-                        bucketObject.getHostName(),
-                        bucketObject.getRpcPort(),
-                        bucketObject.getHttpPort(),
-                        null,
-                        null
-                ));
+                AVAILABLE_BUCKETS.replace(bucketObject.getBucketId(),
+                        new AvailableBucket(
+                                bucketObject.getBucketId(),
+                                bucketObject.getHostName(),
+                                bucketObject.getRpcPort(),
+                                bucketObject.getHttpPort(),
+                                System.currentTimeMillis(),
+                                null));
             case DELETE:
-                ALL_BUCKETS.remove(bucketObject.getBucketId());
+                AVAILABLE_BUCKETS.remove(bucketObject.getBucketId());
             default:
                 break;
         }
-        
+
+    }
+
+    @Scheduled(fixedRate = 5000)
+    public void printBuckets(){
+        System.out.println(ONLINE_BUCKETS);
     }
 
 
-    @Scheduled(fixedRate =10000)
-    public void refreshRoutes(){
-        ALL_BUCKETS.forEach((bucketId,bucketDetails)->{
-            if(bucketDetails.getLastRefreshTime()+15000<System.currentTimeMillis()){
-                ALL_BUCKETS.remove(bucketId);
+    @Scheduled(fixedRate = 10000)
+    public void refreshRoutes() {
+        ONLINE_BUCKETS.forEach((bucketId, bucketDetails) -> {
+            if (bucketDetails.getLastRefreshTime() + 15000 < System.currentTimeMillis()) {
+                ONLINE_BUCKETS.remove(bucketId);
             }
         });
     }
 
-    public Mono<BucketDetails> getBucket(MediaDetails mediaDetails){
+    public Mono<BucketDetails> getBucket(MediaDetails mediaDetails) {
 
-        String generatedBucketId = bucketQue.remove();
-
-        while (!ALL_BUCKETS.containsKey(generatedBucketId)){
-            generatedBucketId = bucketQue.remove();
-        }
-
-        if(generatedBucketId==null){
+        if (bucketQue.isEmpty()) {
             return Mono.error(new BucketError("No registered buckets found."));
         }
 
-        if(generatedBucketId.equals(lastUsedBucketId) && bucketQue.size()==1 && ALL_BUCKETS.containsKey(generatedBucketId)){
-            AvailableBuckets bucketDetails = ALL_BUCKETS.get(generatedBucketId);
-            bucketQue.add(generatedBucketId);
-            return Mono.just(
-                    BucketDetails.builder()
-                            .bucketId(bucketDetails.getBucketId())
-                            .hostName(bucketDetails.getHostName())
-                            .httpPort(bucketDetails.getHttpPort())
-                            .rpcPort(bucketDetails.getRpcPort())
-                            .build()
-            );
+
+//        To manage the space in all buckets this code sends each second request to the bucket with larger space.
+        if (bucketCount == bucketLoadCount && (!Objects.equals(lastUsedBucketId, bucketHaveLargerSpaceTillNow) || AVAILABLE_BUCKETS.size() == 1) && ONLINE_BUCKETS.containsKey(bucketHaveLargerSpaceTillNow)) {
+            AvailableBucket availableBucket = AVAILABLE_BUCKETS.get(bucketHaveLargerSpaceTillNow);
+            lastUsedBucketId = bucketHaveLargerSpaceTillNow;
+            bucketCount++;
+            return Mono.just(BucketDetails.builder()
+                    .bucketId(availableBucket.getBucketId())
+                    .rpcPort(availableBucket.getRpcPort())
+                    .httpPort(availableBucket.getHttpPort())
+                    .hostName(availableBucket.getHostName())
+                    .build());
         }
 
+        String generatedBucketId = null;
 
-        return Mono.just(
-                BucketDetails.builder()
-                        .bucketId(bucketDetails.getBucketId())
-                        .hostName(bucketDetails.getHostName())
-                        .httpPort(bucketDetails.getHttpPort())
-                        .rpcPort(bucketDetails.getRpcPort())
-                        .build()
-        );
+
+        String tempBucketId = null;
+        while (!bucketQue.isEmpty()) {
+            tempBucketId = bucketQue.poll();
+            if (ONLINE_BUCKETS.containsKey(tempBucketId)) {
+                generatedBucketId = tempBucketId;
+                bucketQue.add(tempBucketId);
+                break;
+            }
+        }
+
+        if (generatedBucketId == null) { // Case 1
+            return Mono.error(new BucketError("No registered buckets found."));
+        }
+
+        AvailableBucket bucket = ONLINE_BUCKETS.get(generatedBucketId);
+
+
+
+        return Mono.just(BucketDetails.builder()
+                        .hostName(bucket.getHostName())
+                        .bucketId(bucket.getBucketId())
+                        .httpPort(bucket.getHttpPort())
+                        .rpcPort(bucket.getRpcPort())
+                .build());
     }
-
-
 
 
     @Builder
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    private static class AvailableBuckets {
+    private static class AvailableBucket {
         private String bucketId;
         private String hostName;
         private Integer rpcPort;
@@ -161,13 +176,13 @@ public class AvailableRouteDiscovererService {
         private Long availableSpaceInBytes;
     }
 
-//    Needs as JSON parser.
+    //    Needs as JSON parser.
     @AllArgsConstructor
     @NoArgsConstructor
     @Data
     @Builder
     private static class BucketData {
-//        Add extra metadata if needed.
+        //        Add extra metadata if needed.
         List<Buckets> buckets;
     }
 

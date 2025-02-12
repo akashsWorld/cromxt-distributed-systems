@@ -1,5 +1,6 @@
 package com.cromxt.routeservice.service.impl;
 
+import com.cromxt.common.routeing.BucketDetails;
 import com.cromxt.common.server.requests.NewBucketRequest;
 import com.cromxt.routeservice.service.RouteService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ public class RouteServiceImpl implements RouteService {
 
 
     @Override
-    public Flux<NewBucketRequest> getAllAvailableRoutes() {
+    public Flux<BucketDetails> getAllAvailableRoutes() {
         return null;
     }
 }
