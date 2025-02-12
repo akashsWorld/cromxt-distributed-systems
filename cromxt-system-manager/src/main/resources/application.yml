@@ -1,6 +1,8 @@
 BUCKET_SERVER_CONFIG_KAFKA_BOOTSTRAP_SERVERS: "localhost:9092"
 BUCKET_SERVER_CONFIG_BUCKET_UPDATE_TOPIC: "bucket-updates"
 spring:
+  webflux:
+    base-path: "/system-manager"
   application:
     name: bucket-server
   data:

@@ -5,9 +5,7 @@ import com.cromxt.common.dtos.BaseResponse;
 import com.cromxt.common.dtos.CromxtResponseStatus;
 import com.cromxt.common.dtos.ErrorResponse;
 import com.cromxt.system.dtos.NewBucketRequest;
-import com.cromxt.system.dtos.SavedBucketRespnse;
 import com.cromxt.system.dtos.response.BucketListResponse;
-import com.cromxt.system.dtos.response.BucketResponse;
 import com.cromxt.system.service.BucketService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -38,40 +36,47 @@ public class AdminController {
 
     }
 
-    @PostMapping(produces = "application/json")
-    public ResponseEntity<Mono<? extends BaseResponse>> addBucket(@RequestBody NewBucketRequest newBucketRequest) {
-        Mono<BucketResponse> bucketResponse = bucketService.createBucket(newBucketRequest);
-        return bucketResponse.flatMap(ignored -> new ResponseEntity<>(bucketResponse, HttpStatus.CREATED));
+    @PostMapping
+    public Mono<ResponseEntity<BaseResponse>> addBucket(@RequestBody NewBucketRequest newBucketRequest) {
+        return bucketService.createBucket(newBucketRequest)
+                .map(bucketResponse -> new ResponseEntity<BaseResponse>(bucketResponse,HttpStatus.CREATED))
+                .onErrorResume(e->Mono.just(
+                        new ResponseEntity<>(
+                                new ErrorResponse(e.getMessage(), CromxtResponseStatus.ERROR),
+                                HttpStatus.BAD_REQUEST
+                )));
     }
 
     @DeleteMapping("/{bucketId}")
-    public Mono<ResponseEntity<SavedBucketRespnse>> deleteBucket(@PathVariable String bucketId) {
+    public Mono<ResponseEntity<BaseResponse>> deleteBucket(@PathVariable String bucketId) {
         return bucketService.deleteBucketById(bucketId)
-                .then(Mono.just(new ResponseEntity<>(new SavedBucketRespnse(ResponseState.SUCCESS), HttpStatus.ACCEPTED)))
-                .onErrorResume(e -> Mono.just(new ResponseEntity<>(new ErrorResponse(
-                        e.getMessage(),
-                        ResponseState.ERROR
-                ), HttpStatus.BAD_REQUEST)));
+                .then(Mono.just(new ResponseEntity<>(new BaseResponse(CromxtResponseStatus.SUCCESS), HttpStatus.ACCEPTED)))
+                .onErrorResume(e->Mono.just(
+                        new ResponseEntity<>(
+                                new ErrorResponse(e.getMessage(), CromxtResponseStatus.ERROR),
+                                HttpStatus.BAD_REQUEST
+                        )));
     }
 
     @PutMapping("/{bucketId}")
-    public Mono<ResponseEntity<SavedBucketRespnse>> updateBucket(@PathVariable String bucketId,
+    public Mono<ResponseEntity<BaseResponse>> updateBucket(@PathVariable String bucketId,
                                                                  @RequestBody NewBucketRequest newBucketRequest) {
-        return bucketService.updateBucket(bucketId, newBucketRequest)
-                .then(Mono.just(new ResponseEntity<>(new SavedBucketRespnse(ResponseState.SUCCESS), HttpStatus.ACCEPTED)))
-                .onErrorResume(e -> Mono.just(new ResponseEntity<>(new ErrorResponse(
-                        e.getMessage(),
-                        ResponseState.ERROR
-                ), HttpStatus.BAD_REQUEST)));
+        return bucketService.updateBucket(bucketId, newBucketRequest).map(bucketResponse ->
+                new ResponseEntity<BaseResponse>(bucketResponse, HttpStatus.ACCEPTED))
+                .onErrorResume(e->Mono.just(
+                        new ResponseEntity<>(
+                                new ErrorResponse(e.getMessage(), CromxtResponseStatus.ERROR),
+                                HttpStatus.BAD_REQUEST
+                )));
     }
 
     @DeleteMapping
-    public Mono<ResponseEntity<SavedBucketRespnse>> deleteAllBuckets() {
+    public Mono<ResponseEntity<BaseResponse>> deleteAllBuckets() {
         return bucketService.deleteAllBuckets()
-                .then(Mono.just(new ResponseEntity<>(new SavedBucketRespnse(ResponseState.SUCCESS), HttpStatus.ACCEPTED)))
+                .then(Mono.just(new ResponseEntity<>(new BaseResponse(CromxtResponseStatus.SUCCESS), HttpStatus.ACCEPTED)))
                 .onErrorResume(e -> Mono.just(new ResponseEntity<>(new ErrorResponse(
                         e.getMessage(),
-                        ResponseState.ERROR
+                        CromxtResponseStatus.ERROR
                 ), HttpStatus.BAD_REQUEST)));
     }
 
