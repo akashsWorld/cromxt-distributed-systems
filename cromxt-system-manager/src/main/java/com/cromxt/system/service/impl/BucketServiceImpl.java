@@ -80,20 +80,19 @@ public class BucketServiceImpl implements BucketService {
 
                                 return bucketsRepository.save(savedBucket).flatMap(updatedBucket -> {
 
-                                    updateBucketKafkaProducer.updateBucket(new BucketUpdateRequest(
+                                    return updateBucketKafkaProducer.updateBucket(new BucketUpdateRequest(
                                             Method.ADD,
                                             BucketObject.builder()
+                                                    .bucketId(bucketId)
                                                     .hostName(hostName)
                                                     .httpPort(updatedBucket.getHttpPort())
                                                     .rpcPort(updatedBucket.getHttpPort())
                                                     .build()
-                                    ));
-
-                                    return Mono.just(new BucketResponse(CromxtResponseStatus.SUCCESS, new BucketDTO(
+                                    )).then(Mono.just(new BucketResponse(CromxtResponseStatus.SUCCESS, new BucketDTO(
                                             savedBucket.getId(),
                                             savedBucket.getHostname(),
                                             savedBucket.getHttpPort(),
-                                            savedBucket.getRpcPort())));
+                                            savedBucket.getRpcPort()))));
                                 });
 
                             });
