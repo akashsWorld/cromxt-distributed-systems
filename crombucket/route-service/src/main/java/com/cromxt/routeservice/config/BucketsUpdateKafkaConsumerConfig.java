@@ -1,6 +1,6 @@
 package com.cromxt.routeservice.config;
 
-import com.cromxt.common.kafka.BucketUpdateRequest;
+import com.cromxt.common.crombucket.kafka.BucketUpdateRequest;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;
@@ -29,8 +29,8 @@ public class BucketsUpdateKafkaConsumerConfig {
         props.put(ConsumerConfig.GROUP_ID_CONFIG, bucketUpdateGroupId);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "com.cromxt.common.kafka.BucketUpdateRequest");
-        props.put(JsonDeserializer.TRUSTED_PACKAGES, "com.cromxt.common.kafka.BucketUpdateRequest"); // Ensure correct type
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "com.cromxt.common.crombucket.kafka.BucketUpdateRequest");
+        props.put(JsonDeserializer.TRUSTED_PACKAGES, "com.cromxt.common.crombucket.kafka.BucketUpdateRequest"); // Ensure correct type
         return new DefaultKafkaConsumerFactory<>(props);
     }
 

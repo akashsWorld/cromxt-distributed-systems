@@ -1,9 +1,9 @@
 package com.cromxt.mediaserver.service.impl;
 
 
-import com.cromxt.common.dtos.mediaserver.requests.MediaStatus;
-import com.cromxt.common.dtos.mediaserver.requests.NewMediaRequest;
-import com.cromxt.common.dtos.mediaserver.requests.UpdateMediaRequest;
+import com.cromxt.common.crombucket.dtos.mediaserver.requests.MediaStatus;
+import com.cromxt.common.crombucket.dtos.mediaserver.requests.NewMediaRequest;
+import com.cromxt.common.crombucket.dtos.mediaserver.requests.UpdateMediaRequest;
 import com.cromxt.mediaserver.entity.Medias;
 import com.cromxt.mediaserver.repository.MediaRepository;
 import com.cromxt.mediaserver.service.MediaClientService;

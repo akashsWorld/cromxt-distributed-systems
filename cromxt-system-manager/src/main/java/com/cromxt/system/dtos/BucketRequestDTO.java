@@ -1,6 +1,6 @@
 package com.cromxt.system.dtos;
 
-public record NewBucketRequest (
+public record BucketRequestDTO(
         String hostname,
         Integer port
 ){

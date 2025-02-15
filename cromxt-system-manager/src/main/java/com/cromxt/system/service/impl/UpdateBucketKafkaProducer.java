@@ -2,8 +2,7 @@ package com.cromxt.system.service.impl;
 
 
 
-import com.cromxt.common.kafka.BucketUpdateRequest;
-import org.springframework.aop.support.StaticMethodMatcherPointcut;
+import com.cromxt.common.crombucket.kafka.BucketUpdateRequest;
 import org.springframework.core.env.Environment;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -19,7 +18,6 @@ public class UpdateBucketKafkaProducer {
                                      Environment environment) {
         this.kafkaTemplate = kafkaTemplate;
         String topic = environment.getProperty("CROMXT_SYSTEM_MANAGER_CONFIG_BUCKET_UPDATE_TOPIC", String.class);
-        System.out.println(topic);
         assert topic != null;
         this.UPDATE_BUCKET_TOPIC = topic;
 

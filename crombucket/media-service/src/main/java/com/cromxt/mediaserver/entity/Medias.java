@@ -1,7 +1,7 @@
 package com.cromxt.mediaserver.entity;
 
 
-import com.cromxt.common.dtos.mediaserver.requests.MediaStatus;
+import com.cromxt.common.crombucket.dtos.mediaserver.requests.MediaStatus;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;

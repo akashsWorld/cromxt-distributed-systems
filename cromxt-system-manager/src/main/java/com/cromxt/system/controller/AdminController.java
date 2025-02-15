@@ -1,10 +1,10 @@
 package com.cromxt.system.controller;
 
 
-import com.cromxt.common.dtos.BaseResponse;
-import com.cromxt.common.dtos.CromxtResponseStatus;
-import com.cromxt.common.dtos.ErrorResponse;
-import com.cromxt.system.dtos.NewBucketRequest;
+import com.cromxt.common.crombucket.dtos.BaseResponse;
+import com.cromxt.common.crombucket.dtos.CromxtResponseStatus;
+import com.cromxt.common.crombucket.dtos.ErrorResponse;
+import com.cromxt.system.dtos.BucketRequestDTO;
 import com.cromxt.system.dtos.response.BucketListResponse;
 import com.cromxt.system.service.BucketService;
 import lombok.RequiredArgsConstructor;
@@ -37,8 +37,8 @@ public class AdminController {
     }
 
     @PostMapping
-    public Mono<ResponseEntity<BaseResponse>> addBucket(@RequestBody NewBucketRequest newBucketRequest) {
-        return bucketService.createBucket(newBucketRequest)
+    public Mono<ResponseEntity<BaseResponse>> addBucket(@RequestBody BucketRequestDTO bucketRequestDTO) {
+        return bucketService.createBucket(bucketRequestDTO)
                 .map(bucketResponse -> new ResponseEntity<BaseResponse>(bucketResponse,HttpStatus.CREATED))
                 .onErrorResume(e->Mono.just(
                         new ResponseEntity<>(
@@ -60,8 +60,8 @@ public class AdminController {
 
     @PutMapping("/{bucketId}")
     public Mono<ResponseEntity<BaseResponse>> updateBucket(@PathVariable String bucketId,
-                                                                 @RequestBody NewBucketRequest newBucketRequest) {
-        return bucketService.updateBucket(bucketId, newBucketRequest).map(bucketResponse ->
+                                                                 @RequestBody BucketRequestDTO bucketRequestDTO) {
+        return bucketService.updateBucket(bucketId, bucketRequestDTO).map(bucketResponse ->
                 new ResponseEntity<BaseResponse>(bucketResponse, HttpStatus.ACCEPTED))
                 .onErrorResume(e->Mono.just(
                         new ResponseEntity<>(

@@ -1,12 +1,12 @@
 package com.cromxt.system.service.impl;
 
-import com.cromxt.common.dtos.CromxtResponseStatus;
-import com.cromxt.common.kafka.BucketObject;
-import com.cromxt.common.kafka.BucketUpdateRequest;
-import com.cromxt.common.kafka.Method;
+import com.cromxt.common.crombucket.dtos.CromxtResponseStatus;
+import com.cromxt.common.crombucket.kafka.BucketObject;
+import com.cromxt.common.crombucket.kafka.BucketUpdateRequest;
+import com.cromxt.common.crombucket.kafka.Method;
 import com.cromxt.system.client.ServerClient;
 import com.cromxt.system.dtos.BucketDTO;
-import com.cromxt.system.dtos.NewBucketRequest;
+import com.cromxt.system.dtos.BucketRequestDTO;
 import com.cromxt.system.dtos.response.BucketListResponse;
 import com.cromxt.system.dtos.response.BucketResponse;
 import com.cromxt.system.exception.InvalidBucketDetails;
@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
@@ -55,14 +56,24 @@ public class BucketServiceImpl implements BucketService {
     }
 
     @Override
+    public Flux<BucketObject> getAllRegisteredBuckets() {
+        return bucketsRepository.findAll().map(savedBuckets->BucketObject.builder()
+                .bucketId(savedBuckets.getId())
+                .hostName(savedBuckets.getHostname())
+                .httpPort(savedBuckets.getHttpPort())
+                .rpcPort(savedBuckets.getRpcPort())
+                .build());
+    }
+
+    @Override
     public Mono<BucketListResponse> saveBucketsFromServerJSONFile(FilePart serverJsonFile) {
         // TODO: Implement later
         return Mono.empty();
     }
 
     @Override
-    public Mono<BucketResponse> createBucket(NewBucketRequest newBucketRequest) {
-        String hostName = newBucketRequest.hostname();
+    public Mono<BucketResponse> createBucket(BucketRequestDTO bucketRequestDTO) {
+        String hostName = bucketRequestDTO.hostname();
         Buckets buckets = Buckets.builder()
                 .hostname(hostName)
                 .build();
@@ -72,7 +83,7 @@ public class BucketServiceImpl implements BucketService {
 
                     String bucketId = savedBucket.getId();
 
-                    return serverClient.launchNewBucket(bucketId, hostName, newBucketRequest.port())
+                    return serverClient.launchNewBucket(bucketId, hostName, bucketRequestDTO.port())
                             .flatMap(launchedInstance -> {
 
                                 savedBucket.setHttpPort(launchedInstance.httpPort());
@@ -115,10 +126,10 @@ public class BucketServiceImpl implements BucketService {
     }
 
     @Override
-    public Mono<BucketResponse> updateBucket(String bucketId, NewBucketRequest newBucketRequest) {
-        String hostName = newBucketRequest.hostname();
+    public Mono<BucketResponse> updateBucket(String bucketId, BucketRequestDTO bucketRequestDTO) {
+        String hostName = bucketRequestDTO.hostname();
         return bucketsRepository.findById(bucketId)
-                .flatMap(savedBucket -> serverClient.launchNewBucket(bucketId, hostName, newBucketRequest.port())
+                .flatMap(savedBucket -> serverClient.launchNewBucket(bucketId, hostName, bucketRequestDTO.port())
                         .flatMap(launchedInstance -> {
 
                             savedBucket.setHostname(hostName);

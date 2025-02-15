@@ -1,11 +1,13 @@
 package com.cromxt.routeservice.service.impl;
 
-import com.cromxt.common.kafka.BucketObject;
-import com.cromxt.common.kafka.BucketUpdateRequest;
-import com.cromxt.common.kafka.Method;
-import com.cromxt.common.kafka.BucketHeartBeat;
-import com.cromxt.common.routeing.BucketDetails;
-import com.cromxt.common.routeing.MediaDetails;
+import com.cromxt.common.crombucket.kafka.BucketHeartBeat;
+import com.cromxt.common.crombucket.kafka.BucketObject;
+import com.cromxt.common.crombucket.kafka.BucketUpdateRequest;
+import com.cromxt.common.crombucket.kafka.Method;
+import com.cromxt.common.crombucket.routeing.BucketDetails;
+import com.cromxt.common.crombucket.routeing.MediaDetails;
+import com.cromxt.routeservice.client.SystemManagerClient;
+import com.cromxt.routeservice.dtos.BucketInformationDTO;
 import com.cromxt.routeservice.exception.BucketError;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +18,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
@@ -29,15 +32,26 @@ public class AvailableRouteDiscovererService {
     private static final Map<String, AvailableBucket> ONLINE_BUCKETS = new HashMap<>();
     private static String lastUsedBucketId = null;
     private static String bucketHaveLargerSpaceTillNow = null;
-    private static Queue<String> bucketQue = new LinkedList<>();
+    private static final Queue<String> bucketQue = new LinkedList<>();
     private final int bucketLoadCount;
     private static int bucketCount = 0;
 
 
-    public AvailableRouteDiscovererService(Environment environment) {
+    public AvailableRouteDiscovererService(SystemManagerClient systemManagerClient, Environment environment) {
         Integer loadFactor = environment.getProperty("ROUTE_SERVICE_CONFIG_BUCKET_LOAD_COUNT", Integer.class);
         assert loadFactor != null;
         this.bucketLoadCount = loadFactor;
+        systemManagerClient.getBucketObjects().doOnNext(bucketObject -> {
+            AVAILABLE_BUCKETS.put(bucketObject.getBucketId(),
+                    new AvailableBucket(
+                            bucketObject.getBucketId(),
+                            bucketObject.getHostName(),
+                            bucketObject.getRpcPort(),
+                            bucketObject.getHttpPort(),
+                            System.currentTimeMillis(),
+                            null)
+            );
+        }).subscribe();
     }
 
     @KafkaListener(topics = "${ROUTE_SERVICE_CONFIG_BUCKET_HEARTBEAT_TOPIC}", containerFactory = "bucketsHeartbeatKafkaListenerContainerFactory")
@@ -53,11 +67,11 @@ public class AvailableRouteDiscovererService {
             bucket.setLastRefreshTime(System.currentTimeMillis());
             bucket.setAvailableSpaceInBytes(bucketHeartBeat.getAvailableSpaceInBytes());
             ONLINE_BUCKETS.put(bucketId, bucket);
-            if(bucketHaveLargerSpaceTillNow== null){
+            if (bucketHaveLargerSpaceTillNow == null) {
                 bucketHaveLargerSpaceTillNow = bucketId;
             }
             Long largeSpace = ONLINE_BUCKETS.get(bucketHaveLargerSpaceTillNow).getAvailableSpaceInBytes();
-            if(largeSpace ==null){
+            if (largeSpace == null) {
                 return;
             }
             bucketHaveLargerSpaceTillNow = largeSpace > bucketHeartBeat.getAvailableSpaceInBytes() ? bucketHaveLargerSpaceTillNow : bucketId;
@@ -101,18 +115,37 @@ public class AvailableRouteDiscovererService {
     }
 
     @Scheduled(fixedRate = 5000)
-    public void printBuckets(){
+    public void printBuckets() {
         System.out.println(ONLINE_BUCKETS);
     }
 
 
     @Scheduled(fixedRate = 10000)
     public void refreshRoutes() {
-        ONLINE_BUCKETS.forEach((bucketId, bucketDetails) -> {
-            if (bucketDetails.getLastRefreshTime() + 15000 < System.currentTimeMillis()) {
-                ONLINE_BUCKETS.remove(bucketId);
+        Iterator<Map.Entry<String, AvailableBucket>> iterator = ONLINE_BUCKETS.entrySet().iterator();
+        while (iterator.hasNext()) {
+            AvailableBucket availableBucket = iterator.next().getValue();
+            if (System.currentTimeMillis() - availableBucket.getLastRefreshTime() > 10000) {
+                iterator.remove();
             }
-        });
+        }
+    }
+
+    public Flux<BucketInformationDTO> getAllOnlineBuckets() {
+        Iterator<Map.Entry<String, AvailableBucket>> iterator = ONLINE_BUCKETS.entrySet().iterator();
+        List<BucketInformationDTO> buckets = new ArrayList<>();
+        while (iterator.hasNext()) {
+            AvailableBucket availableBucket = iterator.next().getValue();
+            buckets.add(BucketInformationDTO.builder()
+                    .bucketId(availableBucket.getBucketId())
+                    .hostName(availableBucket.getHostName())
+                    .rpcPort(availableBucket.getRpcPort())
+                    .httpPort(availableBucket.getHttpPort())
+                    .lastRefreshTime(availableBucket.getLastRefreshTime())
+                    .availableSpaceInBytes(availableBucket.getAvailableSpaceInBytes())
+                    .build());
+        }
+        return Flux.fromIterable(buckets);
     }
 
     public Mono<BucketDetails> getBucket(MediaDetails mediaDetails) {
@@ -155,12 +188,11 @@ public class AvailableRouteDiscovererService {
         AvailableBucket bucket = ONLINE_BUCKETS.get(generatedBucketId);
 
 
-
         return Mono.just(BucketDetails.builder()
-                        .hostName(bucket.getHostName())
-                        .bucketId(bucket.getBucketId())
-                        .httpPort(bucket.getHttpPort())
-                        .rpcPort(bucket.getRpcPort())
+                .hostName(bucket.getHostName())
+                .bucketId(bucket.getBucketId())
+                .httpPort(bucket.getHttpPort())
+                .rpcPort(bucket.getRpcPort())
                 .build());
     }
 

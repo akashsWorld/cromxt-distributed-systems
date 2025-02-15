@@ -1,7 +1,7 @@
 package com.cromxt.system.dtos.response;
 
-import com.cromxt.common.dtos.BaseResponse;
-import com.cromxt.common.dtos.CromxtResponseStatus;
+import com.cromxt.common.crombucket.dtos.BaseResponse;
+import com.cromxt.common.crombucket.dtos.CromxtResponseStatus;
 import com.cromxt.system.dtos.BucketDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
