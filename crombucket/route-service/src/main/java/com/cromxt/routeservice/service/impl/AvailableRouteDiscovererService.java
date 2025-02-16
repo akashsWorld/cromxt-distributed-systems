@@ -35,6 +35,7 @@ public class AvailableRouteDiscovererService {
     private static final Queue<String> bucketQue = new LinkedList<>();
     private final int bucketLoadCount;
     private static int bucketCount = 0;
+    private static long api_hits = 0;
 
 
     public AvailableRouteDiscovererService(SystemManagerClient systemManagerClient, Environment environment) {
@@ -114,18 +115,24 @@ public class AvailableRouteDiscovererService {
 
     }
 
-    @Scheduled(fixedRate = 5000)
-    public void printBuckets() {
-        System.out.println(ONLINE_BUCKETS);
-    }
+//    @Scheduled(fixedRate = 5000)
+//    public void printBuckets() {
+//        System.out.println("Online Buckets " + ONLINE_BUCKETS);
+//    }
+//    @Scheduled(fixedRate = 5000)
+//    public void printBucketQue() {
+//        for (String bucketId : bucketQue) {
+//            System.out.print(bucketId+", ");
+//        }
+//    }
 
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 15000)
     public void refreshRoutes() {
         Iterator<Map.Entry<String, AvailableBucket>> iterator = ONLINE_BUCKETS.entrySet().iterator();
         while (iterator.hasNext()) {
             AvailableBucket availableBucket = iterator.next().getValue();
-            if (System.currentTimeMillis() - availableBucket.getLastRefreshTime() > 10000) {
+            if (System.currentTimeMillis() - availableBucket.getLastRefreshTime() > 15000) {
                 iterator.remove();
             }
         }
@@ -150,16 +157,25 @@ public class AvailableRouteDiscovererService {
 
     public Mono<BucketDetails> getBucket(MediaDetails mediaDetails) {
 
-        if (bucketQue.isEmpty()) {
-            return Mono.error(new BucketError("No registered buckets found."));
-        }
+//        TODO: This is a general implementation of the bucket selection logic.
+//        This is just a temporary solution.
+//        But it can be improve with the help of machine learning.
 
+        api_hits++;
 
 //        To manage the space in all buckets this code sends each second request to the bucket with larger space.
-        if (bucketCount == bucketLoadCount && (!Objects.equals(lastUsedBucketId, bucketHaveLargerSpaceTillNow) || AVAILABLE_BUCKETS.size() == 1) && ONLINE_BUCKETS.containsKey(bucketHaveLargerSpaceTillNow)) {
+
+        boolean isAvailableBucketSizeOne = AVAILABLE_BUCKETS.size() == 1;
+
+        if (bucketCount >= bucketLoadCount && (!Objects.equals(lastUsedBucketId, bucketHaveLargerSpaceTillNow) || isAvailableBucketSizeOne)) {
             AvailableBucket availableBucket = AVAILABLE_BUCKETS.get(bucketHaveLargerSpaceTillNow);
             lastUsedBucketId = bucketHaveLargerSpaceTillNow;
-            bucketCount++;
+            bucketCount=0;
+            log.info("Selected large bucket");
+
+            if(!ONLINE_BUCKETS.containsKey(bucketHaveLargerSpaceTillNow)){
+                return Mono.error(new RuntimeException("Bucket not found"));
+            }
             return Mono.just(BucketDetails.builder()
                     .bucketId(availableBucket.getBucketId())
                     .rpcPort(availableBucket.getRpcPort())
@@ -168,10 +184,13 @@ public class AvailableRouteDiscovererService {
                     .build());
         }
 
+        if(bucketQue.isEmpty()) {
+            bucketQue.addAll(ONLINE_BUCKETS.keySet());
+        }
+
         String generatedBucketId = null;
 
-
-        String tempBucketId = null;
+        String tempBucketId;
         while (!bucketQue.isEmpty()) {
             tempBucketId = bucketQue.poll();
             if (ONLINE_BUCKETS.containsKey(tempBucketId)) {
@@ -182,12 +201,16 @@ public class AvailableRouteDiscovererService {
         }
 
         if (generatedBucketId == null) { // Case 1
-            return Mono.error(new BucketError("No registered buckets found."));
+            log.error("No registered buckets found.");
+            log.error("Number of api hits {}", api_hits);
+            return Mono.error(new RuntimeException("No registered buckets found."));
         }
 
         AvailableBucket bucket = ONLINE_BUCKETS.get(generatedBucketId);
 
 
+        log.info("Select from bucket que {}", bucketCount);
+        bucketCount++;
         return Mono.just(BucketDetails.builder()
                 .hostName(bucket.getHostName())
                 .bucketId(bucket.getBucketId())
