@@ -10,4 +10,6 @@ public interface MediaClientService {
     Mono<String> createMedia(NewMediaRequest newMediaRequest);
 
     Mono<Void> updateMedia(String mediaId, UpdateMediaRequest mediaRequest);
+
+    Mono<Void> deleteMediaById(String mediaId);
 }

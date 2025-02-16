@@ -42,4 +42,9 @@ public class MediaServiceImpl implements MediaService, MediaClientService {
         });
 
     }
+
+    @Override
+    public Mono<Void> deleteMediaById(String mediaId) {
+        return mediaRepository.deleteById(mediaId);
+    }
 }

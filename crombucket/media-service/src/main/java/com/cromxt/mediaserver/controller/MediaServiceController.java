@@ -10,12 +10,11 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping(value = "/api/v1/service/media")
+@RequestMapping(value = "/service/v1/medias")
 @RequiredArgsConstructor
 public class MediaServiceController {
 
     private final MediaClientService mediaClientService;
-    private final MediaRepository mediaRepository;
 
     @PostMapping
     public ResponseEntity<Mono<String>> createMedia(
@@ -30,6 +29,11 @@ public class MediaServiceController {
             @RequestBody UpdateMediaRequest updateMediaRequest
             ){
         return ResponseEntity.accepted().body(mediaClientService.updateMedia(mediaId,updateMediaRequest));
+    }
+
+    @DeleteMapping(value = "/{mediaId}")
+    public ResponseEntity<Mono<Void>> deleteMedia(@PathVariable(name = "mediaId") String mediaId){
+        return ResponseEntity.accepted().body(mediaClientService.deleteMediaById(mediaId));
     }
 
 
