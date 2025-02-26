@@ -9,7 +9,7 @@ spring:
     name: bucket-server
   data:
     mongodb:
-      uri: mongodb://root:password@localhost:27017/buckets?authSource=admin
+      uri: mongodb://root:password@localhost:27018/buckets?authSource=admin
   kafka:
     producer:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
